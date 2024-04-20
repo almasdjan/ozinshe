@@ -33,17 +33,19 @@ func isPasswordValid(password string) bool {
 
 }
 
+// @Summary SignUp
+// @Tags auth
+// @Description Create account
+// @Accept json
+// @Produce json
+// @Param user body models.Userjson true "User information"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /auth/signup [post]
 func Signup(c *gin.Context) {
 	//get user parameters
 
-	var body struct {
-		Email        string `json:"email"`
-		Password     string `json:"password"`
-		Password2    string `json:"password2"`
-		Name         string `json:"name"`
-		Phone_number string `json:"phone_number"`
-		Birthday     string `json:"birthday"`
-	}
+	var body models.Userjson
 
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -130,8 +132,8 @@ func Signup(c *gin.Context) {
 	}
 
 	//c.Header("Token", tokenString)
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, 3600*5, "", "", false, true)
+	//c.SetSameSite(http.SameSiteLaxMode)
+	//c.SetCookie("Authorization", tokenString, 3600*5, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"token": tokenString,
 	})
@@ -180,7 +182,7 @@ func Login(c *gin.Context) {
 	//generate jwt token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
-		"exp": time.Now().Add(time.Hour * 5).Unix(),
+		//"exp": time.Now().Add(time.Hour * 5).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
@@ -194,11 +196,19 @@ func Login(c *gin.Context) {
 	}
 
 	//c.Header("Token", tokenString)
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("Authorization", tokenString, 3600*5, "", "", false, true)
+	//c.SetSameSite(http.SameSiteLaxMode)
+	//c.SetCookie("Authorization", tokenString, 3600*5, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
 		"token": tokenString,
 	})
+
+}
+
+func Logout(c *gin.Context) {
+	middleware.RequireAuth(c)
+
+	//tokenString := c.GetHeader("Authorization")
+	//tokenString = tokenString[7:]
 
 }
 
@@ -330,15 +340,48 @@ func ChangePassword(c *gin.Context) {
 
 }
 
-func Logout(c *gin.Context) {
-	c.SetCookie("Authorization", "", -1, "/", "localhost", false, true)
-	c.JSON(200, gin.H{"success": "user logged out"})
-}
-
 func DeleteProfile(c *gin.Context) {
 	middleware.RequireAuth(c)
 
 	userid, _ := c.Get("user")
 	var user models.User
 	initializers.DB.Delete(&user, userid)
+}
+
+func AddFavouriteMovie(c *gin.Context) {
+	middleware.RequireAuth(c)
+
+	userid, _ := c.Get("user")
+
+	var user models.User
+	initializers.DB.First(&user, userid)
+
+	var body struct {
+		Material_id uint `json:"material_id"`
+	}
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body",
+		})
+		return
+	}
+
+	user_favourites := models.User_favourites{
+		User_id:     user.ID,
+		Material_id: body.Material_id}
+
+	result := initializers.DB.Create(&user_favourites)
+
+	if result.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to create material",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"Action": "The material was succfully added to favorites",
+	})
+
 }

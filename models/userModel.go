@@ -11,7 +11,22 @@ type User struct {
 	Email        string `gorm:"unique"`
 	Password     string
 	Name         string
-	Phone_number string `gorm:"unique"`
+	Phone_number string
 	Birthday     string
 	Isadmin      bool
+	Favourites   []*Material `gorm:"many2many:user_materials;"`
+}
+
+type Userjson struct {
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	Password2    string `json:"password2"`
+	Name         string `json:"name"`
+	Phone_number string `json:"phone_number"`
+	Birthday     string `json:"birthday"`
+}
+
+type User_favourites struct {
+	User_id     uint
+	Material_id uint
 }

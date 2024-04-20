@@ -1,0 +1,68 @@
+
+go get -u github.com/gin-gonic/gin
+go get github.com/githubnemo/CompileDaemon
+go get github.com/joho/godotenv
+go get -u gorm.io/gorm
+go get -u gorm.io/driver/postgres
+go get github.com/badoux/checkmail
+
+update users
+set isadmin = 'true'
+where email like '%al@gmail.com%'
+
+
+create table genres( --так же создаем таблицы категории, категории возраста
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+	genre_name varchar(255)
+);
+
+
+create table material_genres( -- я это не использую, Categories []*Category `gorm:"many2many:material_categories;"` создает таблицу
+material_id bigint,
+genre_id bigint,
+PRIMARY KEY (material_id, genre_id),
+FOREIGN KEY (material_id) REFERENCES materials (id),
+FOREIGN KEY (genre_id) REFERENCES genres (id)
+);
+
+create table videos(
+	material_id bigint not null, 
+	sezon bigint,
+	series bigint,
+	add image_src varchar unique,
+	video_src varchar unique not null,
+	PRIMARY KEY (material_id, sezon, series),
+	FOREIGN KEY (material_id) REFERENCES materials (id)
+);
+
+
+
+create table recommends(
+	material_id bigint primary key,
+	queue int
+);
+
+
+delete from material_ages;
+delete from material_categories;
+delete from material_genres;
+delete from image_srcs;
+delete from user_favourites;
+delete from videos;
+delete from materials;
+
+
+--get recommends
+select r.material_id, m.poster, m.title, m.description from materials m join recommends r on m.id = r.material_id order by r.queue
+
+
+
+
+create table user_history(
+id BIGSERIAL NOT NULL,
+material_id bigint,
+user_id bigint,
+PRIMARY KEY (id, material_id, user_id),
+FOREIGN KEY (material_id) REFERENCES materials (id),
+FOREIGN KEY (user_id) REFERENCES users (id)
+);
