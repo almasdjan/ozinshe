@@ -23,7 +23,7 @@ func init() {
 // @version 1.0
 // @description API Server for Ozinshe app
 
-// @host localhost:8080
+// @host ozinshetestapi.modydev.kz
 // @BasePath /
 
 // @securityDefinitions.apikey BearerAuth

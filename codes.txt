@@ -66,3 +66,39 @@ PRIMARY KEY (id, material_id, user_id),
 FOREIGN KEY (material_id) REFERENCES materials (id),
 FOREIGN KEY (user_id) REFERENCES users (id)
 );
+
+
+
+
+
+create table ages( --так же создаем таблицы категории, категории возраста
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+	age varchar(255)
+);
+
+
+
+
+create table categories( --так же создаем таблицы категории, категории возраста
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+	category_name varchar(255)
+);
+
+
+
+create table material_ages( 
+material_id bigint,
+age_id bigint,
+PRIMARY KEY (material_id, age_id),
+FOREIGN KEY (material_id) REFERENCES materials (id),
+FOREIGN KEY (age_id) REFERENCES ages (id)
+);
+
+
+create table material_categories( 
+material_id bigint,
+category_id bigint,
+PRIMARY KEY (material_id, category_id),
+FOREIGN KEY (material_id) REFERENCES materials (id),
+FOREIGN KEY (age_id) REFERENCES categories (id)
+);
