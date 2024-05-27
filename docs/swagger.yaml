@@ -57,7 +57,7 @@ definitions:
       phone_number:
         type: string
     type: object
-host: ozinshetestapi.modydev.kz
+host: ozinshetestapi.mobydev.kz
 info:
   contact: {}
   description: API Server for Ozinshe app
@@ -1001,8 +1001,6 @@ paths:
       - admin
   /auth/login:
     post:
-      consumes:
-      - application/json
       description: SignIn
       parameters:
       - description: User information
@@ -1011,8 +1009,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Login'
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -1029,8 +1025,6 @@ paths:
       - auth
   /auth/password:
     patch:
-      consumes:
-      - application/json
       description: Change password
       parameters:
       - description: New password
@@ -1039,8 +1033,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Changepasswd'
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -1059,11 +1051,7 @@ paths:
       - auth
   /auth/profile:
     delete:
-      consumes:
-      - application/json
       description: Delete profile
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -1082,8 +1070,6 @@ paths:
       - auth
   /auth/signup:
     post:
-      consumes:
-      - application/json
       description: Create account
       parameters:
       - description: User information
@@ -1092,8 +1078,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Userjson'
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -1110,11 +1094,7 @@ paths:
       - auth
   /auth/userinfo:
     get:
-      consumes:
-      - application/json
       description: See User Info
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -1132,8 +1112,6 @@ paths:
       tags:
       - auth
     patch:
-      consumes:
-      - application/json
       description: Update user info
       parameters:
       - description: User information
@@ -1142,8 +1120,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.Userupdate'
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -1162,8 +1138,6 @@ paths:
       - auth
   /favourites/{material_id}:
     post:
-      consumes:
-      - application/json
       description: Add the movie to favourite list
       parameters:
       - description: Material ID of the movie
@@ -1171,8 +1145,6 @@ paths:
         name: material_id
         required: true
         type: string
-      produces:
-      - application/json
       responses:
         "200":
           description: OK

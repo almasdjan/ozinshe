@@ -37,8 +37,6 @@ func isPasswordValid(password string) bool {
 // @Summary SignUp
 // @Tags auth
 // @Description Create account
-// @Accept json
-// @Produce json
 // @Param user body models.Userjson true "User information"
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
@@ -146,8 +144,6 @@ func Signup(c *gin.Context) {
 // @Summary Login
 // @Tags auth
 // @Description SignIn
-// @Accept json
-// @Produce json
 // @Param user body models.Login true "User information"
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
@@ -222,8 +218,6 @@ func Logout(c *gin.Context) {
 // @Summary User Info
 // @Tags auth
 // @Description See User Info
-// @Accept json
-// @Produce json
 // @Security BearerAuth
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
@@ -248,8 +242,6 @@ func GetUserInfo(c *gin.Context) {
 // @Summary Update User Info
 // @Tags auth
 // @Description Update user info
-// @Accept json
-// @Produce json
 // @Param userinfo body models.Userupdate true "User information"
 // @Security BearerAuth
 // @Success 200 {object} map[string]any
@@ -302,8 +294,6 @@ func UpdateUserInfo(c *gin.Context) {
 // @Summary Change password
 // @Tags auth
 // @Description Change password
-// @Accept json
-// @Produce json
 // @Param password body models.Changepasswd true "New password"
 // @Security BearerAuth
 // @Success 200 {object} map[string]any
@@ -370,8 +360,6 @@ func ChangePassword(c *gin.Context) {
 // @Summary Delete account
 // @Tags auth
 // @Description Delete profile
-// @Accept json
-// @Produce json
 // @Security BearerAuth
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
@@ -386,8 +374,6 @@ func DeleteProfile(c *gin.Context) {
 
 // @Summary Add to favourite
 // @Description Add the movie to favourite list
-// @Accept json
-// @Produce json
 // @Security BearerAuth
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any

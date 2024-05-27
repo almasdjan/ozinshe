@@ -1444,12 +1444,6 @@ const docTemplate = `{
         "/auth/login": {
             "post": {
                 "description": "SignIn",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1491,12 +1485,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Change password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1538,12 +1526,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Delete profile",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1569,12 +1551,6 @@ const docTemplate = `{
         "/auth/signup": {
             "post": {
                 "description": "Create account",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1616,12 +1592,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "See User Info",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1650,12 +1620,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Update user info",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1697,12 +1661,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "Add the movie to favourite list",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "summary": "Add to favourite",
                 "parameters": [
                     {
@@ -2533,7 +2491,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "ozinshetestapi.modydev.kz",
+	Host:             "ozinshetestapi.mobydev.kz",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Ozinshe",

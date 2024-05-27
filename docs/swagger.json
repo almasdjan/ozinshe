@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "ozinshetestapi.modydev.kz",
+    "host": "ozinshetestapi.mobydev.kz",
     "basePath": "/",
     "paths": {
         "/admin/age": {
@@ -1438,12 +1438,6 @@
         "/auth/login": {
             "post": {
                 "description": "SignIn",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1485,12 +1479,6 @@
                     }
                 ],
                 "description": "Change password",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1532,12 +1520,6 @@
                     }
                 ],
                 "description": "Delete profile",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1563,12 +1545,6 @@
         "/auth/signup": {
             "post": {
                 "description": "Create account",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1610,12 +1586,6 @@
                     }
                 ],
                 "description": "See User Info",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1644,12 +1614,6 @@
                     }
                 ],
                 "description": "Update user info",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "auth"
                 ],
@@ -1691,12 +1655,6 @@
                     }
                 ],
                 "description": "Add the movie to favourite list",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "summary": "Add to favourite",
                 "parameters": [
                     {
