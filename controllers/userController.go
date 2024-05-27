@@ -5,6 +5,7 @@ import (
 	"os"
 	"project1/initializers"
 	"project1/middleware"
+	"strconv"
 
 	"project1/models"
 	"time"
@@ -142,13 +143,19 @@ func Signup(c *gin.Context) {
 
 }
 
+// @Summary Login
+// @Tags auth
+// @Description SignIn
+// @Accept json
+// @Produce json
+// @Param user body models.Login true "User information"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /auth/login [post]
 func Login(c *gin.Context) {
 	//get user parameters
 
-	var body struct {
-		Email    string
-		Password string
-	}
+	var body models.Login
 
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -212,6 +219,15 @@ func Logout(c *gin.Context) {
 
 }
 
+// @Summary User Info
+// @Tags auth
+// @Description See User Info
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /auth/userinfo [get]
 func GetUserInfo(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -229,6 +245,16 @@ func GetUserInfo(c *gin.Context) {
 
 }
 
+// @Summary Update User Info
+// @Tags auth
+// @Description Update user info
+// @Accept json
+// @Produce json
+// @Param userinfo body models.Userupdate true "User information"
+// @Security BearerAuth
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /auth/userinfo [patch]
 func UpdateUserInfo(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -237,12 +263,7 @@ func UpdateUserInfo(c *gin.Context) {
 	var user models.User
 	initializers.DB.First(&user, userid)
 
-	var body struct {
-		Email        string `json:"email"`
-		Name         string `json:"name"`
-		Phone_number string `json:"phone_number"`
-		Birthday     string `json:"birthday"`
-	}
+	var body models.Userupdate
 
 	c.Bind(&body)
 
@@ -278,6 +299,16 @@ func UpdateUserInfo(c *gin.Context) {
 
 }
 
+// @Summary Change password
+// @Tags auth
+// @Description Change password
+// @Accept json
+// @Produce json
+// @Param password body models.Changepasswd true "New password"
+// @Security BearerAuth
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /auth/password [patch]
 func ChangePassword(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -286,11 +317,7 @@ func ChangePassword(c *gin.Context) {
 	var user models.User
 	initializers.DB.First(&user, userid)
 
-	var body struct {
-		Password     string `json:"password"`
-		Newpassword  string `json:"newpassword"`
-		Newpassword2 string `json:"newpassword2"`
-	}
+	var body models.Changepasswd
 
 	c.Bind(&body)
 
@@ -340,6 +367,15 @@ func ChangePassword(c *gin.Context) {
 
 }
 
+// @Summary Delete account
+// @Tags auth
+// @Description Delete profile
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /auth/profile [delete]
 func DeleteProfile(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -348,6 +384,15 @@ func DeleteProfile(c *gin.Context) {
 	initializers.DB.Delete(&user, userid)
 }
 
+// @Summary Add to favourite
+// @Description Add the movie to favourite list
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Param material_id path string true "Material ID of the movie"
+// @Router /favourites/{material_id} [post]
 func AddFavouriteMovie(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -356,20 +401,19 @@ func AddFavouriteMovie(c *gin.Context) {
 	var user models.User
 	initializers.DB.First(&user, userid)
 
-	var body struct {
-		Material_id uint `json:"material_id"`
-	}
+	material_idd := c.Param("material_id")
 
-	if c.Bind(&body) != nil {
+	material_id, err := strconv.Atoi(material_idd)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
+			"error": "Failed to get material_id",
 		})
 		return
 	}
 
 	user_favourites := models.User_favourites{
 		User_id:     user.ID,
-		Material_id: body.Material_id}
+		Material_id: uint(material_id)}
 
 	result := initializers.DB.Create(&user_favourites)
 

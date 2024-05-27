@@ -11,6 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary add to recommended list
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/recommends/{material_id} [post]
 func AddRecommend(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -52,6 +62,15 @@ func AddRecommend(c *gin.Context) {
 
 }
 
+// @Summary recommended list
+// @Security BearerAuth
+// @Tags main
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /main/recommends [get]
 func GetRecommended(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -68,7 +87,7 @@ func GetRecommended(c *gin.Context) {
 		})
 		return
 	}
-	rows, err := db.Query(context.Background(), "select r.material_id, m.poster, m.title, m.description from materials m join recommends r on m.id = r.material_id order by r.queue")
+	rows, err := db.Query(context.Background(), "select r.material_id, m.poster, m.title, m.description from materials m join recommends r on m.id = r.material_id order by r.queue desc")
 
 	if err != nil {
 		fmt.Println(err)
@@ -99,12 +118,36 @@ func GetRecommended(c *gin.Context) {
 
 }
 
-// @Summary GetRandom
-// @Description random in main
+func GetRecommendedData() ([]models.Material_recommend, error) {
+	db, err := initializers.ConnectDb()
+	if err != nil {
+		return nil, err
+	}
+	rows, err := db.Query(context.Background(), "SELECT r.material_id, m.poster, m.title, m.description FROM materials m JOIN recommends r ON m.id = r.material_id ORDER BY r.queue DESC LIMIT 5")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var materials []models.Material_recommend
+	for rows.Next() {
+		var material models.Material_recommend
+		err := rows.Scan(&material.Material_id, &material.Poster, &material.Title, &material.Description)
+		if err != nil {
+			return nil, err
+		}
+		materials = append(materials, material)
+	}
+	return materials, nil
+}
+
+// @Summary Get random movies
 // @Accept json
 // @Produce json
-// @Success 200 {object} []models.Material_get
-// @Router /foryou [get]
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /main/foryou [get]
 func GetRandomMovie(c *gin.Context) {
 	//middleware.RequireAuth(c)
 
@@ -157,6 +200,57 @@ func GetRandomMovie(c *gin.Context) {
 
 }
 
+func GetRandomMovieMain() ([]models.Material_get, error) {
+	//middleware.RequireAuth(c)
+
+	//userid, _ := c.Get("user")
+
+	//var user models.User
+	//initializers.DB.First(&user, userid)
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+
+			return nil, error
+		}*/
+	rows, err := initializers.ConnPool.Query(context.Background(), `select id,poster, title, category_name from (
+		select distinct on (id) *   from (
+			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
+			join material_categories mc on m.id = mc.material_id
+			join categories c on mc.category_id = c.id
+		)
+	 
+	)order by random() LIMIT 5 `)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	var materials []models.Material_get
+	for rows.Next() {
+		var material models.Material_get
+		err := rows.Scan(&material.Material_id, &material.Title, &material.Poster, &material.Category)
+		if err != nil {
+			return nil, err
+		}
+		materials = append(materials, material)
+	}
+	return materials, err
+
+}
+
+// @Summary form recommended list
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/recommends/{material_id} [delete]
 func DeleteFromRecommended(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -181,8 +275,8 @@ func DeleteFromRecommended(c *gin.Context) {
 		return
 	}
 
-	queue := c.Param("queue")
-	_, err := db.Exec(context.Background(), `update recommends set material_id = null where queue = $1`, queue)
+	material := c.Param("material_id")
+	_, err := db.Exec(context.Background(), `delete from recommends where material_id = $1`, material)
 	if err != nil {
 		fmt.Println(error)
 		c.JSON(http.StatusBadRequest, gin.H{

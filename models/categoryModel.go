@@ -9,3 +9,7 @@ type Material_category struct {
 	Material_id uint
 	Category_id uint
 }
+
+type Categoryjson struct {
+	Category string
+}

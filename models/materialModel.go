@@ -33,6 +33,7 @@ type Movie struct {
 	Description  string
 	Director     string
 	Producer     string
+	Viewed       int
 }
 
 type Material_history struct {

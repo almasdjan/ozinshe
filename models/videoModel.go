@@ -9,6 +9,7 @@ type Video struct {
 }
 
 type Series struct {
+	Id        uint
 	Series    uint
 	Image_src string
 	Video_src string

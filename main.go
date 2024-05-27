@@ -26,7 +26,7 @@ func init() {
 // @host localhost:8080
 // @BasePath /
 
-// securityDefinitions.apikey ApiKeyAuth
+// @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
 
@@ -37,68 +37,78 @@ func main() {
 
 	auth := r.Group("/auth")
 	auth.POST("/signup", controllers.Signup)
+	auth.POST("/login", controllers.Login)
+	auth.GET("/userinfo", controllers.GetUserInfo)
+	auth.PATCH("/userinfo", controllers.UpdateUserInfo)
+	auth.PATCH("/password", controllers.ChangePassword)
+	auth.DELETE("/profile", controllers.DeleteProfile)
 
-	r.POST("/login", controllers.Login)
-	r.GET("/requireauth", middleware.RequireAuth)
-	r.GET("/getuser", controllers.GetUserInfo)
 	r.GET("/logout", controllers.Logout)
-	r.PATCH("/editprofile", controllers.UpdateUserInfo)
-	r.DELETE("/deleteprofile", controllers.DeleteProfile)
-	r.PATCH("/changepassword", controllers.ChangePassword)
+	r.GET("/requireauth", middleware.RequireAuth)
+	r.POST("/favourites/:material_id", controllers.AddFavouriteMovie)
 
-	r.POST("/addfavourite", controllers.AddFavouriteMovie)
-	r.POST("/addrecommend/:material_id", controllers.AddRecommend)
-	r.GET("/getrecommends", controllers.GetRecommended)
-	r.DELETE("/deletefromrecommends/:queue", controllers.DeleteFromRecommended)
+	admin := r.Group("/admin")
+
+	admin.POST("/age", controllers.CreateAge)
+	admin.DELETE("/ages/:age_id", controllers.DeleteAge)
+	admin.PATCH("/ages/:age_id", controllers.UpdateAge)
+
+	admin.POST("/categories", controllers.CreateCategory)
+	admin.PATCH("/categories/:category_id", controllers.UpdateCategories)
+	admin.DELETE("/categories/:category_id", controllers.DeleteCategory)
+
+	admin.POST("/genres", controllers.CreateGenre)
+	admin.PATCH("/genres/:genre_id", controllers.UpdateGenre)
+	admin.DELETE("/genres/:genre_id", controllers.DeleteGenre)
+
+	admin.DELETE("categorymaterial/:material_id/:category_id", controllers.DeleteGenreCategoryMaterial)
+	admin.DELETE("agematerial/:material_id/:age_id", controllers.DeleteAgeFromMaterial)
+	admin.DELETE("genrematerial/:material_id/:genre_id", controllers.DeleteGenreFromMaterial)
+
+	admin.POST("/genrematerial/:material_id/:genre_id", controllers.AddGenreToMaterial)
+	admin.POST("/agematerial/:material_id/:age_id", controllers.AddAgeToMaterial)
+	admin.POST("/categorymaterial/:material_id/:category_id", controllers.AddCategoryToMaterial)
+
+	admin.POST("/videosrc", controllers.CreateVideo)
+	admin.DELETE("/videosrc/:video_id", controllers.DeleteVideo)
+
+	admin.POST("/recommends/:material_id", controllers.AddRecommend)
+	admin.DELETE("/recommends/:material_id", controllers.DeleteFromRecommended)
+
+	admin.POST("/material", controllers.CreateMaterial)
+	admin.DELETE("/material/:material_id", controllers.DeleteMaterial)
+	admin.PATCH("/material/:material_id", controllers.UpdateMaterial)
+	admin.POST("/materialimage/:material_id", controllers.AddImage)
+	admin.DELETE("materialimage", controllers.DeleteImage)
+
+	main := r.Group("/main")
+	main.GET("/ages", controllers.GetAges)
+	main.GET("/categories", controllers.GetCategories)
+	main.GET("/genres", controllers.GetGenres)
+
+	main.GET("/", controllers.GetMainList)
+	main.GET("/material/:material_id", controllers.GetMaterialById)
+	main.GET("/genres/:genre_id", controllers.GetMovieByGenre)
+	main.GET("/ages/:age_id", controllers.GetMovieByAge)
+	main.GET("/history", controllers.GetMaterialHistory)
+	main.GET("/trends", controllers.GetTrends)
+
+	main.GET("/series/:material_id/:sezon", controllers.GetSezonsOrVideo)
+	main.GET("/series/:material_id", controllers.GetSezonsOrVideo)
+	main.GET("/series/serial/:material_id/:video_id", controllers.GetSerialSeries)
+
+	main.GET("/foryou", controllers.GetRandomMovie)
+	main.GET("/recommends", controllers.GetRecommended)
+
+	main.GET("/search", controllers.Search)
+
 	r.PATCH("/updaterecommends/:queue/:material_id", controllers.UpdateRecommended)
 	r.POST("/addhistory/:material_id", controllers.AddHistory)
-	r.GET("/gethistory", controllers.GetMaterialHistory)
-	r.GET("/gettrends", controllers.GetTrends)
 
-	r.GET("/foryou", controllers.GetRandomMovie)
+	//r.GET("/getsezonsorvideo/:material_id/:sezon", controllers.GetSezonsOrVideo)
+	//r.GET("/getsezonsorvideo/:material_id", controllers.GetSezonsOrVideo)
 
-	r.GET("/main", controllers.GetMainList)
-	r.GET("/main/genre/:genre_id", controllers.GetMovieByGenre)
-	r.GET("/main/age/:age_id", controllers.GetMovieByAge)
-	r.GET("/getsezonsorvideo/:material_id/:sezon", controllers.GetSezonsOrVideo)
-	r.GET("/getsezonsorvideo/:material_id", controllers.GetSezonsOrVideo)
 	r.PATCH("/updateviewed/:material_id", controllers.AddViewed)
-
-	r.GET("/getmaterialbyid/:material_id", controllers.GetMaterialById)
-
-	r.GET("/search", controllers.Search)
-
-	r.POST("/addmaterial", controllers.CreateMaterial)
-	r.DELETE("/delete/:material_id", controllers.DeleteMaterial)
-	r.PATCH("/update/:material_id", controllers.UpdateMaterial)
-	r.POST("/addimage/:material_id", controllers.AddImage)
-	r.DELETE("deleteimage/:image", controllers.DeleteImage)
-	r.POST("/addgenretomaterial/:material_id/:genre_id", controllers.AddGenreToMaterial)
-	r.DELETE("deletegenrefrommaterial/:material_id/:genre_id", controllers.DeleteGenreFromMaterial)
-	r.POST("/addagetomaterial/:material_id/:age_id", controllers.AddAgeToMaterial)
-	r.DELETE("deleteagefrommaterial/:material_id/:age_id", controllers.DeleteAgeFromMaterial)
-	r.POST("/addcategorytomaterial/:material_id/:category_id", controllers.AddCategoryToMaterial)
-	r.DELETE("deletecategoryfrommaterial/:material_id/:category_id", controllers.DeleteGenreCategoryMaterial)
-
-	r.POST("/createcategory", controllers.CreateCategory)
-	r.GET("/getcategories", controllers.GetCategories)
-	r.PATCH("/updatecategories/:category_id", controllers.UpdateCategories)
-	r.DELETE("/deletecategories/:category_id", controllers.DeleteCategory)
-
-	r.POST("/creategenre", controllers.CreateGenre)
-	r.GET("/getgenres", controllers.GetGenres)
-	r.PATCH("/updategenre/:genre_id", controllers.UpdateGenre)
-	r.DELETE("/deletegenre/:genre_id", controllers.DeleteGenre)
-
-	r.POST("/createagecategory", controllers.CreateAge)
-	r.GET("/getages", controllers.GetAges)
-	r.PATCH("/updateages/:age_id", controllers.UpdateAge)
-	r.DELETE("/deleteage/:age_id", controllers.DeleteAge)
-
-	r.POST("/addvideosrc", controllers.CreateVideo)
-	r.DELETE("/deletevideosrc/:video_id", controllers.DeleteVideo)
-
-	r.POST("/adddirector", controllers.CreateCategory)
 
 	r.Run()
 }

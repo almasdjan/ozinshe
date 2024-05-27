@@ -11,6 +11,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Create video
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id formData string true "material id"
+// @Param sezon formData string false "sezon"
+// @Param series formData string false "series"
+// @Param video_src formData string true "video_src"
+// @Param image_src formData file true "image"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/videosrc [post]
 func CreateVideo(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -108,6 +122,16 @@ func CreateVideo(c *gin.Context) {
 
 }
 
+// @Summary delete video
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param video_id path string true "video id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/videosrc/{video_id} [delete]
 func DeleteVideo(c *gin.Context) {
 	middleware.RequireAuth(c)
 

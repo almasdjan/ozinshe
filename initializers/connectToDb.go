@@ -31,6 +31,8 @@ const (
 	lazyConnect         = false
 )
 
+var ConnPool *pgxpool.Pool
+
 func ConnectDb() (*pgxpool.Pool, error) {
 	dsn := os.Getenv("DB")
 	//dataSource := fmt.Sprintf("host=localhost user=postgres password=229847 dbname=ozinshe port=5432 sslmode=disable")
@@ -46,10 +48,10 @@ func ConnectDb() (*pgxpool.Pool, error) {
 	poolCfg.MinConns = minConns
 	poolCfg.LazyConnect = lazyConnect
 
-	connPool, err := pgxpool.ConnectConfig(context.Background(), poolCfg)
+	ConnPool, err = pgxpool.ConnectConfig(context.Background(), poolCfg)
 	if err != nil {
 		return nil, errors.Wrap(err, "pgx.ConnectConfig")
 	}
-	return connPool, nil
+	return ConnPool, nil
 
 }

@@ -11,6 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Create category
+// @Security BearerAuth
+// @Tags admin
+// @Description Create category
+// @Accept json
+// @Produce json
+// @Param category body models.Categoryjson true "Category"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /admin/categories [post]
 func CreateCategory(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -26,9 +36,7 @@ func CreateCategory(c *gin.Context) {
 		return
 	}
 
-	var body struct {
-		CategoryName string `json:"category_name"`
-	}
+	var body models.Categoryjson
 
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -38,7 +46,7 @@ func CreateCategory(c *gin.Context) {
 	}
 
 	var category models.Category
-	exist := initializers.DB.Where("name=?", body.CategoryName).First(&category)
+	exist := initializers.DB.Where("name=?", body.Category).First(&category)
 
 	if exist.RowsAffected > 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -47,7 +55,7 @@ func CreateCategory(c *gin.Context) {
 		return
 	}
 
-	category = models.Category{CategoryName: body.CategoryName}
+	category = models.Category{CategoryName: body.Category}
 
 	result := initializers.DB.Create(&category)
 
@@ -65,6 +73,16 @@ func CreateCategory(c *gin.Context) {
 
 }
 
+// @Summary delete category
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param category_id path string true "category id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/categories/{category_id} [delete]
 func DeleteCategory(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -92,7 +110,7 @@ func DeleteCategory(c *gin.Context) {
 	_, err := db.Exec(context.Background(), "DELETE FROM categories WHERE id = $1", id)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to delete category",
 		})
 		return
@@ -104,6 +122,15 @@ func DeleteCategory(c *gin.Context) {
 
 }
 
+// @Summary get all categories
+// @Security BearerAuth
+// @Tags main
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /main/categories [get]
 func GetCategories(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -154,6 +181,17 @@ func GetCategories(c *gin.Context) {
 	})
 }
 
+// @Summary edit category
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param category_id path string true "category id"
+// @Param category body models.Categoryjson true "Category"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/categories/{category_id} [patch]
 func UpdateCategories(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -178,12 +216,22 @@ func UpdateCategories(c *gin.Context) {
 	}
 
 	id := c.Param("category_id")
-	category := c.PostForm("category")
+	var body models.Categoryjson
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body",
+		})
+		return
+	}
+
+	category := body.Category
+
 	_, err := db.Exec(context.Background(), "update categories set category_name = $1 WHERE id = $2", category, id)
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to update the category",
 		})
 		return
@@ -195,6 +243,17 @@ func UpdateCategories(c *gin.Context) {
 
 }
 
+// @Summary delete category from material
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material id"
+// @Param category_id path string true "category id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/categorymaterial/{material_id}/{category_id} [delete]
 func DeleteGenreCategoryMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -212,7 +271,7 @@ func DeleteGenreCategoryMaterial(c *gin.Context) {
 
 	db, error := initializers.ConnectDb()
 	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to connect database",
 		})
 		return
@@ -234,6 +293,17 @@ func DeleteGenreCategoryMaterial(c *gin.Context) {
 
 }
 
+// @Summary add category to material
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material id"
+// @Param category_id path string true "category id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/categorymaterial/{material_id}/{category_id} [post]
 func AddCategoryToMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -262,7 +332,7 @@ func AddCategoryToMaterial(c *gin.Context) {
 
 	_, err := db.Exec(context.Background(), `insert into material_categories values ($1,$2)`, id, category)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to add category",
 		})
 		return

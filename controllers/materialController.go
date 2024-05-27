@@ -8,10 +8,31 @@ import (
 	"project1/middleware"
 	"project1/models"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Create material
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param title formData string true "title"
+// @Param posterr formData file true "poster"
+// @Param description formData string true "description"
+// @Param publish_year formData string true "publish year"
+// @Param director formData string true "director"
+// @Param producer formData string true "producer"
+// @Param categories formData []string false "categories"
+// @Param age_categories formData []string false "ages"
+// @Param genres formData []string false "genres"
+// @Param duration formData string true "duration"
+// @Param image_srcs[] formData []file true "images"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/material [post]
 func CreateMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -85,47 +106,13 @@ func CreateMaterial(c *gin.Context) {
 
 	}
 
-	//adding material_id, category_id in material_categories
-	//cate := strings.Split(categories[0], ",")
-	for _, v := range categories {
-		category_id, err := strconv.Atoi(v)
-		if err != nil {
-			fmt.Println(err)
-			fmt.Println(v)
-			fmt.Println(category_id)
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "category_id is not correct",
-			})
-			return
-		}
-		material_category := models.Material_category{
-			Material_id: material.ID,
-			Category_id: uint(category_id)}
-
-		var category models.Category
-		exist := initializers.DB.Where("id=?", v).First(&category)
-		if exist.RowsAffected == 0 {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "no such category",
-			})
-			return
-
-		}
-
-		result1 := initializers.DB.Create(&material_category)
-
-		if result1.Error != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Failed to create material_category",
-			})
-			return
-
-		}
-
+	//adding material_id, genre_id in material_genres
+	var genresList []string
+	for _, v := range genre {
+		genresList = strings.Split(v, ",")
 	}
 
-	//adding material_id, genre_id in material_genres
-	for _, v := range genre {
+	for _, v := range genresList {
 		genre_id, err := strconv.Atoi(v)
 
 		if err != nil {
@@ -165,8 +152,57 @@ func CreateMaterial(c *gin.Context) {
 
 	}
 
+	//adding material_id, category_id in material_categories
+	//cate := strings.Split(categories[0], ",")
+	var categoriesList []string
+	for _, v := range categories {
+		categoriesList = strings.Split(v, ",")
+	}
+
+	for _, v := range categoriesList {
+		category_id, err := strconv.Atoi(v)
+		if err != nil {
+			fmt.Println(err)
+			fmt.Println(v)
+			fmt.Println(category_id)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "category_id is not correct",
+			})
+			return
+		}
+		material_category := models.Material_category{
+			Material_id: material.ID,
+			Category_id: uint(category_id)}
+
+		var category models.Category
+		exist := initializers.DB.Where("id=?", v).First(&category)
+		if exist.RowsAffected == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "no such category",
+			})
+			return
+
+		}
+
+		result1 := initializers.DB.Create(&material_category)
+
+		if result1.Error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to create material_category",
+			})
+			return
+
+		}
+
+	}
+
 	//adding age category and material
+	var agesList []string
 	for _, v := range age {
+		agesList = strings.Split(v, ",")
+	}
+
+	for _, v := range agesList {
 		age_id, err := strconv.Atoi(v)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -202,9 +238,10 @@ func CreateMaterial(c *gin.Context) {
 
 	//adding material_id, image_src in image_srcs
 	image_srcs, _ := c.MultipartForm()
-	files := image_srcs.File["images[]"]
-
+	files := image_srcs.File["image_srcs[]"]
+	fmt.Println(files)
 	for _, file := range files {
+		fmt.Println(file.Filename)
 		//upload images into directory
 		path := "files//images//" + file.Filename
 		c.SaveUploadedFile(file, path)
@@ -231,6 +268,16 @@ func CreateMaterial(c *gin.Context) {
 
 }
 
+// @Summary Material by id
+// @Security BearerAuth
+// @Tags main
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material_id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /main/material/{material_id} [get]
 func GetMaterialById(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -249,7 +296,7 @@ func GetMaterialById(c *gin.Context) {
 
 	material_id := c.Param("material_id")
 
-	movie := db.QueryRow(context.Background(), "select poster, title, publish_year,  duration, description, director, producer from materials where id = $1	", material_id)
+	movie := db.QueryRow(context.Background(), "select poster, title, publish_year,  duration, description, director, producer, viewed from materials where id = $1	", material_id)
 	if movie == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to get materials info",
@@ -258,7 +305,7 @@ func GetMaterialById(c *gin.Context) {
 	}
 	var movieInfo models.Movie
 
-	err := movie.Scan(&movieInfo.Poster, &movieInfo.Title, &movieInfo.Publish_year, &movieInfo.Duration, &movieInfo.Description, &movieInfo.Director, &movieInfo.Producer)
+	err := movie.Scan(&movieInfo.Poster, &movieInfo.Title, &movieInfo.Publish_year, &movieInfo.Duration, &movieInfo.Description, &movieInfo.Director, &movieInfo.Producer, &movieInfo.Viewed)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -427,6 +474,24 @@ func GetMaterialById(c *gin.Context) {
 
 }
 
+type MainResponse struct {
+	Recommends []models.Material_recommend `json:"recommends"`
+	History    []models.Material_history   `json:"history"`
+	Trends     []models.Material_get       `json:"trends"`
+	Randoms    []models.Material_get       `json:"randoms"`
+	Genre      []models.Genre              `json:"genres"`
+	Ages       []models.Age                `json:"ages"`
+}
+
+// @Summary main page
+// @Security BearerAuth
+// @Tags main
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /main [get]
 func GetMainList(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -435,14 +500,39 @@ func GetMainList(c *gin.Context) {
 
 	initializers.DB.First(&user, userid)
 
-	GetRecommended(c)
-	GetMaterialHistory(c)
-	GetTrends(c)
-	GetRandomMovie(c)
+	recommended, err := GetRecommendedData()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get reocommneds",
+		})
+		return
+	}
+	history, err := GetMaterialHistoryMain(userid)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get history",
+		})
+		return
+	}
+
+	trends, err := GetTrendsMain()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get trends",
+		})
+		return
+	}
+	randoms, err := GetRandomMovieMain()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get randoms",
+		})
+		return
+	}
 
 	db, error := initializers.ConnectDb()
 	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to connect database",
 		})
 		return
@@ -471,9 +561,6 @@ func GetMainList(c *gin.Context) {
 		}
 		genres = append(genres, genre)
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"genres": genres,
-	})
 
 	agerows, err := db.Query(context.Background(), `select * from ages`)
 
@@ -498,12 +585,30 @@ func GetMainList(c *gin.Context) {
 		}
 		ages = append(ages, age)
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"ages": ages,
-	})
+
+	response := MainResponse{
+		Recommends: recommended,
+		History:    history,
+		Trends:     trends,
+		Randoms:    randoms,
+		Genre:      genres,
+		Ages:       ages,
+	}
+
+	c.JSON(http.StatusOK, response)
 
 }
 
+// @Summary Material by id
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material_id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/material/{material_id} [delete]
 func DeleteMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -553,6 +658,23 @@ func DeleteMaterial(c *gin.Context) {
 
 }
 
+// @Summary edit material
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material_id"
+// @Param title formData string false "title"
+// @Param posterr formData file false "poster"
+// @Param description formData string false "description"
+// @Param publish_year formData string false "publish year"
+// @Param director formData string false "director"
+// @Param producer formData string false "producer"
+// @Param duration formData string false "producer"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/material/{material_id} [patch]
 func UpdateMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -577,16 +699,16 @@ func UpdateMaterial(c *gin.Context) {
 	}
 
 	id := c.Param("material_id")
-
+	var path string
 	posterr, err := c.FormFile("posterr")
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read poster",
-		})
-		return
+		path = ""
+	} else {
+		path = "files//posters//" + posterr.Filename
+		c.SaveUploadedFile(posterr, path)
 	}
-	path := "files//posters//" + posterr.Filename
-	c.SaveUploadedFile(posterr, path)
+	fmt.Print(path)
 
 	title := c.PostForm("title")
 	description := c.PostForm("description")
@@ -597,19 +719,75 @@ func UpdateMaterial(c *gin.Context) {
 	fmt.Println(producer)
 	duration := c.PostForm("duration")
 	fmt.Println(duration)
-	_, err1 := db.Exec(context.Background(), "update materials set title = $1 WHERE id = $2", title, id)
-	_, err2 := db.Exec(context.Background(), "update materials set poster = $1 WHERE id = $2", posterr.Filename, id)
-	_, err3 := db.Exec(context.Background(), "update materials set description = $1 WHERE id = $2", description, id)
-	_, err4 := db.Exec(context.Background(), "update materials set publish_year = $1 WHERE id = $2", publish_year, id)
-	_, err5 := db.Exec(context.Background(), "update materials set director = $1 WHERE id = $2", director, id)
-	_, err6 := db.Exec(context.Background(), "update materials set producer = $1 WHERE id = $2", producer, id)
-	_, err7 := db.Exec(context.Background(), "update materials set duration = $1 WHERE id = $2", duration, id)
+	if title != "" {
+		_, err := db.Exec(context.Background(), "update materials set title = $1 WHERE id = $2", title, id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update the material",
+			})
+			return
+		}
+	}
 
-	if err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil || err6 != nil || err7 != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to update the material",
-		})
-		return
+	if description != "" {
+		_, err := db.Exec(context.Background(), "update materials set description = $1 WHERE id = $2", description, id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update the material",
+			})
+			return
+		}
+	}
+
+	if director != "" {
+		_, err := db.Exec(context.Background(), "update materials set director = $1 WHERE id = $2", director, id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update the material",
+			})
+			return
+		}
+	}
+
+	if producer != "" {
+		_, err := db.Exec(context.Background(), "update materials set producer = $1 WHERE id = $2", producer, id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update the material",
+			})
+			return
+		}
+	}
+
+	if duration != "" {
+		_, err := db.Exec(context.Background(), "update materials set duration = $1 WHERE id = $2", duration, id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update the material",
+			})
+			return
+		}
+	}
+
+	if publish_year != "" {
+		_, err := db.Exec(context.Background(), "update materials set publish_year = $1 WHERE id = $2", publish_year, id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update the material",
+			})
+			return
+		}
+	}
+
+	if path != "" {
+		_, err := db.Exec(context.Background(), "update materials set poster = $1 WHERE id = $2", posterr.Filename, id)
+
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update the material",
+			})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -618,6 +796,16 @@ func UpdateMaterial(c *gin.Context) {
 
 }
 
+// @Summary image
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param image query string true "image"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/materialimage [delete]
 func DeleteImage(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -641,7 +829,7 @@ func DeleteImage(c *gin.Context) {
 		return
 	}
 
-	image := c.Param("image")
+	image := c.Query("image")
 
 	_, err := db.Exec(context.Background(), `delete from image_srcs WHERE image_src = $1`, image)
 	if err != nil {
@@ -651,8 +839,23 @@ func DeleteImage(c *gin.Context) {
 		return
 	}
 
+	c.JSON(http.StatusOK, gin.H{
+		"success": "The image was deleted",
+	})
+
 }
 
+// @Summary add image to material
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material id"
+// @Param image_srcs[] formData []file true "images"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/materialimage/{material_id} [post]
 func AddImage(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -670,7 +873,7 @@ func AddImage(c *gin.Context) {
 
 	db, error := initializers.ConnectDb()
 	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to connect database",
 		})
 		return
@@ -678,7 +881,7 @@ func AddImage(c *gin.Context) {
 	id := c.Param("material_id")
 
 	image_srcs, _ := c.MultipartForm()
-	files := image_srcs.File["images[]"]
+	files := image_srcs.File["image_srcs[]"]
 
 	for _, file := range files {
 		//upload images into directory
@@ -701,6 +904,16 @@ func AddImage(c *gin.Context) {
 
 }
 
+// @Summary search
+// @Security BearerAuth
+// @Tags main
+// @Accept json
+// @Produce json
+// @Param search query string true "search"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /main/search [get]
 func Search(c *gin.Context) {
 	middleware.RequireAuth(c)
 

@@ -1,14 +1,34 @@
 basePath: /
 definitions:
-  models.Material_get:
+  models.Agejson:
+    properties:
+      age:
+        type: string
+    type: object
+  models.Categoryjson:
     properties:
       category:
         type: string
-      material_id:
-        type: integer
-      poster:
+    type: object
+  models.Changepasswd:
+    properties:
+      newpassword:
         type: string
-      title:
+      newpassword2:
+        type: string
+      password:
+        type: string
+    type: object
+  models.Genrejson:
+    properties:
+      genre:
+        type: string
+    type: object
+  models.Login:
+    properties:
+      email:
+        type: string
+      password:
         type: string
     type: object
   models.Userjson:
@@ -26,6 +46,17 @@ definitions:
       phone_number:
         type: string
     type: object
+  models.Userupdate:
+    properties:
+      birthday:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone_number:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -33,6 +64,1022 @@ info:
   title: Ozinshe
   version: "1.0"
 paths:
+  /admin/age:
+    post:
+      consumes:
+      - application/json
+      description: Create age category
+      parameters:
+      - description: Age category
+        in: body
+        name: age
+        required: true
+        schema:
+          $ref: '#/definitions/models.Agejson'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create age category
+      tags:
+      - admin
+  /admin/agematerial/{material_id}/{age_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      - description: age id
+        in: path
+        name: age_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: delete age category from material
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      - description: age id
+        in: path
+        name: age_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: add age category to material
+      tags:
+      - admin
+  /admin/ages/{age_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: age id
+        in: path
+        name: age_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: delete age category
+      tags:
+      - admin
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: age id
+        in: path
+        name: age_id
+        required: true
+        type: string
+      - description: Age category
+        in: body
+        name: age
+        required: true
+        schema:
+          $ref: '#/definitions/models.Agejson'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: edit age category
+      tags:
+      - admin
+  /admin/categories:
+    post:
+      consumes:
+      - application/json
+      description: Create category
+      parameters:
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.Categoryjson'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create category
+      tags:
+      - admin
+  /admin/categories/{category_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: category id
+        in: path
+        name: category_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: delete category
+      tags:
+      - admin
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: category id
+        in: path
+        name: category_id
+        required: true
+        type: string
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/models.Categoryjson'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: edit category
+      tags:
+      - admin
+  /admin/categorymaterial/{material_id}/{category_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      - description: category id
+        in: path
+        name: category_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: delete category from material
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      - description: category id
+        in: path
+        name: category_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: add category to material
+      tags:
+      - admin
+  /admin/genrematerial/{material_id}/{genre_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      - description: genre id
+        in: path
+        name: genre_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: delete genre from material
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      - description: genre id
+        in: path
+        name: genre_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: add genre to material
+      tags:
+      - admin
+  /admin/genres:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Genre
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/models.Genrejson'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create genre
+      tags:
+      - admin
+  /admin/genres/{genre_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: genre id
+        in: path
+        name: genre_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: delete genre
+      tags:
+      - admin
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: genre id
+        in: path
+        name: genre_id
+        required: true
+        type: string
+      - description: Genre
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/models.Genrejson'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: edit genre
+      tags:
+      - admin
+  /admin/material:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: poster
+        in: formData
+        name: posterr
+        required: true
+        type: file
+      - description: description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: publish year
+        in: formData
+        name: publish_year
+        required: true
+        type: string
+      - description: director
+        in: formData
+        name: director
+        required: true
+        type: string
+      - description: producer
+        in: formData
+        name: producer
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: categories
+        in: formData
+        items:
+          type: string
+        name: categories
+        type: array
+      - collectionFormat: csv
+        description: ages
+        in: formData
+        items:
+          type: string
+        name: age_categories
+        type: array
+      - collectionFormat: csv
+        description: genres
+        in: formData
+        items:
+          type: string
+        name: genres
+        type: array
+      - description: duration
+        in: formData
+        name: duration
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: images
+        in: formData
+        items:
+          type: file
+        name: image_srcs[]
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create material
+      tags:
+      - admin
+  /admin/material/{material_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: material_id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Material by id
+      tags:
+      - admin
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: material_id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      - description: title
+        in: formData
+        name: title
+        type: string
+      - description: poster
+        in: formData
+        name: posterr
+        type: file
+      - description: description
+        in: formData
+        name: description
+        type: string
+      - description: publish year
+        in: formData
+        name: publish_year
+        type: string
+      - description: director
+        in: formData
+        name: director
+        type: string
+      - description: producer
+        in: formData
+        name: producer
+        type: string
+      - description: producer
+        in: formData
+        name: duration
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: edit material
+      tags:
+      - admin
+  /admin/materialimage:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: image
+        in: query
+        name: image
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: image
+      tags:
+      - admin
+  /admin/materialimage/{material_id}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: images
+        in: formData
+        items:
+          type: file
+        name: image_srcs[]
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: add image to material
+      tags:
+      - admin
+  /admin/recommends/{material_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: form recommended list
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: add to recommended list
+      tags:
+      - admin
+  /admin/videosrc:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: formData
+        name: material_id
+        required: true
+        type: string
+      - description: sezon
+        in: formData
+        name: sezon
+        type: string
+      - description: series
+        in: formData
+        name: series
+        type: string
+      - description: video_src
+        in: formData
+        name: video_src
+        required: true
+        type: string
+      - description: image
+        in: formData
+        name: image_src
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create video
+      tags:
+      - admin
+  /admin/videosrc/{video_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: video id
+        in: path
+        name: video_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: delete video
+      tags:
+      - admin
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: SignIn
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login
+      tags:
+      - auth
+  /auth/password:
+    patch:
+      consumes:
+      - application/json
+      description: Change password
+      parameters:
+      - description: New password
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/models.Changepasswd'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - auth
+  /auth/profile:
+    delete:
+      consumes:
+      - application/json
+      description: Delete profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete account
+      tags:
+      - auth
   /auth/signup:
     post:
       consumes:
@@ -61,19 +1108,540 @@ paths:
       summary: SignUp
       tags:
       - auth
-  /foryou:
+  /auth/userinfo:
     get:
       consumes:
       - application/json
-      description: random in main
+      description: See User Info
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.Material_get'
-            type: array
-      summary: GetRandom
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: User Info
+      tags:
+      - auth
+    patch:
+      consumes:
+      - application/json
+      description: Update user info
+      parameters:
+      - description: User information
+        in: body
+        name: userinfo
+        required: true
+        schema:
+          $ref: '#/definitions/models.Userupdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update User Info
+      tags:
+      - auth
+  /favourites/{material_id}:
+    post:
+      consumes:
+      - application/json
+      description: Add the movie to favourite list
+      parameters:
+      - description: Material ID of the movie
+        in: path
+        name: material_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add to favourite
+  /main:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: main page
+      tags:
+      - main
+  /main/ages:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: get all age categories
+      tags:
+      - main
+  /main/ages/{age_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: age id
+        in: path
+        name: age_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: get movies by age category
+      tags:
+      - main
+  /main/categories:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: get all categories
+      tags:
+      - main
+  /main/foryou:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get random movies
+  /main/genres:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: get all genres
+      tags:
+      - main
+  /main/genres/{genre_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: genre id
+        in: path
+        name: genre_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: get movies by genre
+      tags:
+      - main
+  /main/history:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: watch history
+      tags:
+      - main
+  /main/material/{material_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: material_id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Material by id
+      tags:
+      - main
+  /main/recommends:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: recommended list
+      tags:
+      - main
+  /main/search:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: search
+        in: query
+        name: search
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: search
+      tags:
+      - main
+  /main/series/{material_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: series list or videosrc
+      tags:
+      - main
+  /main/series/{material_id}/{sezon}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      - description: Season number
+        in: path
+        name: sezon
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: series list or videosrc
+      tags:
+      - main
+  /main/series/serial/{material_id}/{video_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      - description: video_id
+        in: path
+        name: video_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: serie by video_id
+      tags:
+      - main
+  /main/trends:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: trends
+      tags:
+      - main
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -11,6 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Create age category
+// @Security BearerAuth
+// @Tags admin
+// @Description Create age category
+// @Accept json
+// @Produce json
+// @Param age body models.Agejson true "Age category"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /admin/age [post]
 func CreateAge(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -26,9 +36,7 @@ func CreateAge(c *gin.Context) {
 		return
 	}
 
-	var body struct {
-		Age string `json:"age"`
-	}
+	var body models.Agejson
 
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -38,7 +46,7 @@ func CreateAge(c *gin.Context) {
 	}
 
 	var age models.Age
-	exist := initializers.DB.Where("name=?", body.Age).First(&age)
+	exist := initializers.DB.Where("age=?", body.Age).First(&age)
 
 	if exist.RowsAffected > 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -65,6 +73,16 @@ func CreateAge(c *gin.Context) {
 
 }
 
+// @Summary get movies by age category
+// @Security BearerAuth
+// @Tags main
+// @Accept json
+// @Produce json
+// @Param age_id path string true "age id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /main/ages/{age_id} [get]
 func GetMovieByAge(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -75,7 +93,7 @@ func GetMovieByAge(c *gin.Context) {
 
 	db, error := initializers.ConnectDb()
 	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to connect database",
 		})
 		return
@@ -90,7 +108,7 @@ func GetMovieByAge(c *gin.Context) {
 
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 
 			"error": "Failed to get materials info",
 		})
@@ -114,6 +132,16 @@ func GetMovieByAge(c *gin.Context) {
 	})
 }
 
+// @Summary delete age category
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param age_id path string true "age id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/ages/{age_id} [delete]
 func DeleteAge(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -131,7 +159,7 @@ func DeleteAge(c *gin.Context) {
 
 	db, error := initializers.ConnectDb()
 	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to connect database",
 		})
 		return
@@ -141,7 +169,7 @@ func DeleteAge(c *gin.Context) {
 	_, err := db.Exec(context.Background(), "DELETE FROM ages WHERE id = $1", id)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to delete age category",
 		})
 		return
@@ -153,6 +181,15 @@ func DeleteAge(c *gin.Context) {
 
 }
 
+// @Summary get all age categories
+// @Security BearerAuth
+// @Tags main
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /main/ages [get]
 func GetAges(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -203,6 +240,17 @@ func GetAges(c *gin.Context) {
 	})
 }
 
+// @Summary edit age category
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param age_id path string true "age id"
+// @Param age body models.Agejson true "Age category"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/ages/{age_id} [patch]
 func UpdateAge(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -227,12 +275,27 @@ func UpdateAge(c *gin.Context) {
 	}
 
 	id := c.Param("age_id")
-	age := c.PostForm("age")
-	_, err := db.Exec(context.Background(), "update ages set age = $1 WHERE id = $2", age, id)
+
+	var body models.Agejson
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body",
+		})
+		return
+	}
+
+	age := body.Age
+
+	fmt.Println(age)
+	fmt.Println(id)
+
+	_, err := db.Exec(context.Background(), "update ages set age =$1 WHERE id = $2", age, id)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to update age category",
+			//"error": "Failed to update age category",
+			"err": err.Error(),
 		})
 		return
 	}
@@ -243,6 +306,17 @@ func UpdateAge(c *gin.Context) {
 
 }
 
+// @Summary delete age category from material
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material id"
+// @Param age_id path string true "age id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/agematerial/{material_id}/{age_id} [delete]
 func DeleteAgeFromMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -282,6 +356,17 @@ func DeleteAgeFromMaterial(c *gin.Context) {
 
 }
 
+// @Summary add age category to material
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material id"
+// @Param age_id path string true "age id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/agematerial/{material_id}/{age_id} [post]
 func AddAgeToMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -310,7 +395,7 @@ func AddAgeToMaterial(c *gin.Context) {
 
 	_, err := db.Exec(context.Background(), `insert into material_ages values ($1,$2)`, id, age)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to add age",
 		})
 		return

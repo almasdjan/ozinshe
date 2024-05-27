@@ -11,6 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Create genre
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param genre body models.Genrejson true "Genre"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /admin/genres [post]
 func CreateGenre(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -26,9 +35,7 @@ func CreateGenre(c *gin.Context) {
 		return
 	}
 
-	var body struct {
-		GenreName string `json:"genre_name"`
-	}
+	var body models.Genrejson
 
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -38,7 +45,7 @@ func CreateGenre(c *gin.Context) {
 	}
 
 	var genre models.Genre
-	exist := initializers.DB.Where("name=?", body.GenreName).First(&genre)
+	exist := initializers.DB.Where("name=?", body.Genre).First(&genre)
 
 	if exist.RowsAffected > 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -47,7 +54,7 @@ func CreateGenre(c *gin.Context) {
 		return
 	}
 
-	genre = models.Genre{GenreName: body.GenreName}
+	genre = models.Genre{GenreName: body.Genre}
 
 	result := initializers.DB.Create(&genre)
 
@@ -65,6 +72,16 @@ func CreateGenre(c *gin.Context) {
 
 }
 
+// @Summary get movies by genre
+// @Security BearerAuth
+// @Tags main
+// @Accept json
+// @Produce json
+// @Param genre_id path string true "genre id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /main/genres/{genre_id} [get]
 func GetMovieByGenre(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -115,6 +132,16 @@ func GetMovieByGenre(c *gin.Context) {
 
 }
 
+// @Summary delete genre
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param genre_id path string true "genre id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/genres/{genre_id} [delete]
 func DeleteGenre(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -154,6 +181,15 @@ func DeleteGenre(c *gin.Context) {
 
 }
 
+// @Summary get all genres
+// @Security BearerAuth
+// @Tags main
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /main/genres [get]
 func GetGenres(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -204,6 +240,17 @@ func GetGenres(c *gin.Context) {
 	})
 }
 
+// @Summary edit genre
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param genre_id path string true "genre id"
+// @Param genre body models.Genrejson true "Genre"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/genres/{genre_id} [patch]
 func UpdateGenre(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -228,7 +275,17 @@ func UpdateGenre(c *gin.Context) {
 	}
 
 	id := c.Param("genre_id")
-	genre := c.PostForm("genre")
+	var body models.Genrejson
+
+	if c.Bind(&body) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read body",
+		})
+		return
+	}
+
+	genre := body.Genre
+
 	_, err := db.Exec(context.Background(), "update genres set genre_name = $1 WHERE id = $2", genre, id)
 
 	if err != nil {
@@ -244,6 +301,17 @@ func UpdateGenre(c *gin.Context) {
 
 }
 
+// @Summary delete genre from material
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material id"
+// @Param genre_id path string true "genre id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/genrematerial/{material_id}/{genre_id} [delete]
 func DeleteGenreFromMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -284,6 +352,17 @@ func DeleteGenreFromMaterial(c *gin.Context) {
 
 }
 
+// @Summary add genre to material
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param material_id path string true "material id"
+// @Param genre_id path string true "genre id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/genrematerial/{material_id}/{genre_id} [post]
 func AddGenreToMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
 
