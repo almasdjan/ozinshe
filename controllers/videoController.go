@@ -146,18 +146,18 @@ func DeleteVideo(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	video_id := c.Param("video_id")
 
-	_, err := db.Exec(context.Background(), `delete from videos WHERE id = $1 `, video_id)
+	_, err := initializers.ConnPool.Exec(context.Background(), `delete from videos WHERE id = $1 `, video_id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to delete video",

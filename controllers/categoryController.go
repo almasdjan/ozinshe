@@ -97,17 +97,17 @@ func DeleteCategory(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	id := c.Param("category_id")
-	_, err := db.Exec(context.Background(), "DELETE FROM categories WHERE id = $1", id)
+	_, err := initializers.ConnPool.Exec(context.Background(), "DELETE FROM categories WHERE id = $1", id)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -145,15 +145,15 @@ func GetCategories(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-	rows, err := db.Query(context.Background(), `select * from categories`)
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
+	rows, err := initializers.ConnPool.Query(context.Background(), `select * from categories`)
 
 	if err != nil {
 		fmt.Println(err)
@@ -206,14 +206,14 @@ func UpdateCategories(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	id := c.Param("category_id")
 	var body models.Categoryjson
@@ -227,7 +227,7 @@ func UpdateCategories(c *gin.Context) {
 
 	category := body.Category
 
-	_, err := db.Exec(context.Background(), "update categories set category_name = $1 WHERE id = $2", category, id)
+	_, err := initializers.ConnPool.Exec(context.Background(), "update categories set category_name = $1 WHERE id = $2", category, id)
 
 	if err != nil {
 		fmt.Println(err)
@@ -268,19 +268,19 @@ func DeleteGenreCategoryMaterial(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	category := c.Param("category_id")
 	id := c.Param("material_id")
 
-	_, err := db.Exec(context.Background(), `delete from material_categories WHERE category_id = $1 and material_id = $2`, category, id)
+	_, err := initializers.ConnPool.Exec(context.Background(), `delete from material_categories WHERE category_id = $1 and material_id = $2`, category, id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to delete category",
@@ -318,19 +318,19 @@ func AddCategoryToMaterial(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 	id := c.Param("material_id")
 
 	category := c.Param("category_id")
 
-	_, err := db.Exec(context.Background(), `insert into material_categories values ($1,$2)`, id, category)
+	_, err := initializers.ConnPool.Exec(context.Background(), `insert into material_categories values ($1,$2)`, id, category)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to add category",

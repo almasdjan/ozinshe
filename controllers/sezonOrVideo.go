@@ -39,17 +39,17 @@ func GetSezonsOrVideo(c *gin.Context) {
 		})
 		return
 	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-
-	row := db.QueryRow(context.Background(), "select count(*) from materials m join material_categories mc on m.id = mc.material_id join categories c on c.id = mc.category_id  where c.category_name like '%сериал%' and m.id = $1", material_id)
+	row := initializers.ConnPool.QueryRow(context.Background(), "select count(*) from materials m join material_categories mc on m.id = mc.material_id join categories c on c.id = mc.category_id  where c.category_name like '%сериал%' and m.id = $1", material_id)
 
 	if row == nil {
 
@@ -71,7 +71,7 @@ func GetSezonsOrVideo(c *gin.Context) {
 	}
 
 	if isSerial == 1 { //если сериал
-		rows, err := db.Query(context.Background(), "select distinct sezon from videos where material_id = $1 order by sezon", material_id)
+		rows, err := initializers.ConnPool.Query(context.Background(), "select distinct sezon from videos where material_id = $1 order by sezon", material_id)
 
 		if err != nil {
 			fmt.Println(err)
@@ -102,7 +102,7 @@ func GetSezonsOrVideo(c *gin.Context) {
 			sezonParam = "1"
 		}
 
-		rowsSeries, err := db.Query(context.Background(), "select id, series, image_src, video_src  from videos where material_id = $1 and sezon = $2 order by series ", material_id, sezonParam)
+		rowsSeries, err := initializers.ConnPool.Query(context.Background(), "select id, series, image_src, video_src  from videos where material_id = $1 and sezon = $2 order by series ", material_id, sezonParam)
 
 		if err != nil {
 			fmt.Println(err)
@@ -132,7 +132,7 @@ func GetSezonsOrVideo(c *gin.Context) {
 		})
 
 	} else if isSerial == 0 { //если не сериал
-		row := db.QueryRow(context.Background(), "select video_src from videos where material_id = $1", material_id)
+		row := initializers.ConnPool.QueryRow(context.Background(), "select video_src from videos where material_id = $1", material_id)
 
 		if err != nil {
 			fmt.Println(err)
@@ -194,19 +194,19 @@ func AddViewed(c *gin.Context) {
 		})
 		return
 	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-
-	_, err := db.Exec(context.Background(), "update materials set viewed = viewed+1 where id = $1", material_id)
+	_, err := initializers.ConnPool.Exec(context.Background(), "update materials set viewed = viewed+1 where id = $1", material_id)
 	if err != nil {
-		fmt.Println(error)
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to update viewed",
 		})
@@ -217,17 +217,17 @@ func AddViewed(c *gin.Context) {
 }
 
 func AddViewedFunc(userid interface{}, material_id string) error {
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
 
-	db, error := initializers.ConnectDb()
-	if error != nil {
+			return error
+		}*/
 
-		return error
-	}
-
-	_, err := db.Exec(context.Background(), "update materials set viewed = viewed+1 where id = $1", material_id)
+	_, err := initializers.ConnPool.Exec(context.Background(), "update materials set viewed = viewed+1 where id = $1", material_id)
 	if err != nil {
-		fmt.Println(error)
-		return error
+		fmt.Println(err)
+		return err
 	}
 	return nil
 }
@@ -261,17 +261,17 @@ func GetSerialSeries(c *gin.Context) {
 		})
 		return
 	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-
-	rowsSeries := db.QueryRow(context.Background(), "select video_src from videos where id = $1", video_id)
+	rowsSeries := initializers.ConnPool.QueryRow(context.Background(), "select video_src from videos where id = $1", video_id)
 
 	var series string
 	err := rowsSeries.Scan(&series)

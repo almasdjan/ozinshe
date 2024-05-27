@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "ozinshetestapi.mobydev.kz",
+    "host": "localhost:8080",
     "basePath": "/",
     "paths": {
         "/admin/age": {

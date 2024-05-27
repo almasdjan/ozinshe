@@ -90,18 +90,18 @@ func GetMovieByAge(c *gin.Context) {
 	var user models.User
 
 	initializers.DB.First(&user, userid)
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}
+	*/
 	age_id := c.Param("age_id")
 
-	rows, err := db.Query(context.Background(), `select  m.id,m.poster, m.title, c.age from materials m
+	rows, err := initializers.ConnPool.Query(context.Background(), `select  m.id,m.poster, m.title, c.age from materials m
 	join material_ages mc on m.id = mc.material_id
 	join ages c on mc.age_id = c.id
 	where c.id = $1`, age_id)
@@ -156,17 +156,17 @@ func DeleteAge(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}
+	*/
 	id := c.Param("age_id")
-	_, err := db.Exec(context.Background(), "DELETE FROM ages WHERE id = $1", id)
+	_, err := initializers.ConnPool.Exec(context.Background(), "DELETE FROM ages WHERE id = $1", id)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -204,15 +204,15 @@ func GetAges(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-	rows, err := db.Query(context.Background(), `select * from ages`)
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
+	rows, err := initializers.ConnPool.Query(context.Background(), `select * from ages`)
 
 	if err != nil {
 		fmt.Println(err)
@@ -265,14 +265,14 @@ func UpdateAge(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	id := c.Param("age_id")
 
@@ -290,7 +290,7 @@ func UpdateAge(c *gin.Context) {
 	fmt.Println(age)
 	fmt.Println(id)
 
-	_, err := db.Exec(context.Background(), "update ages set age =$1 WHERE id = $2", age, id)
+	_, err := initializers.ConnPool.Exec(context.Background(), "update ages set age =$1 WHERE id = $2", age, id)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -331,19 +331,19 @@ func DeleteAgeFromMaterial(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	age := c.Param("age_id")
 	id := c.Param("material_id")
 
-	_, err := db.Exec(context.Background(), `delete from material_ages WHERE age_id = $1 and material_id = $2`, age, id)
+	_, err := initializers.ConnPool.Exec(context.Background(), `delete from material_ages WHERE age_id = $1 and material_id = $2`, age, id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to delete image",
@@ -381,19 +381,19 @@ func AddAgeToMaterial(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 	id := c.Param("material_id")
 
 	age := c.Param("age_id")
 
-	_, err := db.Exec(context.Background(), `insert into material_ages values ($1,$2)`, id, age)
+	_, err := initializers.ConnPool.Exec(context.Background(), `insert into material_ages values ($1,$2)`, id, age)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to add age",

@@ -35,18 +35,18 @@ func AddRecommend(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	material_id := c.Param("material_id")
-	_, err := db.Exec(context.Background(), "insert into recommends (material_id) values ($1)", material_id)
+	_, err := initializers.ConnPool.Exec(context.Background(), "insert into recommends (material_id) values ($1)", material_id)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -78,16 +78,16 @@ func GetRecommended(c *gin.Context) {
 
 	var user models.User
 	initializers.DB.First(&user, userid)
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-	rows, err := db.Query(context.Background(), "select r.material_id, m.poster, m.title, m.description from materials m join recommends r on m.id = r.material_id order by r.queue desc")
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
+	rows, err := initializers.ConnPool.Query(context.Background(), "select r.material_id, m.poster, m.title, m.description from materials m join recommends r on m.id = r.material_id order by r.queue desc")
 
 	if err != nil {
 		fmt.Println(err)
@@ -119,11 +119,12 @@ func GetRecommended(c *gin.Context) {
 }
 
 func GetRecommendedData() ([]models.Material_recommend, error) {
-	db, err := initializers.ConnectDb()
-	if err != nil {
-		return nil, err
-	}
-	rows, err := db.Query(context.Background(), "SELECT r.material_id, m.poster, m.title, m.description FROM materials m JOIN recommends r ON m.id = r.material_id ORDER BY r.queue DESC LIMIT 5")
+	/*
+		db, err := initializers.ConnectDb()
+		if err != nil {
+			return nil, err
+		}*/
+	rows, err := initializers.ConnPool.Query(context.Background(), "SELECT r.material_id, m.poster, m.title, m.description FROM materials m JOIN recommends r ON m.id = r.material_id ORDER BY r.queue DESC LIMIT 5")
 	if err != nil {
 		return nil, err
 	}
@@ -155,16 +156,16 @@ func GetRandomMovie(c *gin.Context) {
 
 	//var user models.User
 	//initializers.DB.First(&user, userid)
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-	rows, err := db.Query(context.Background(), `select id,poster, title, category_name from (
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
+	rows, err := initializers.ConnPool.Query(context.Background(), `select id,poster, title, category_name from (
 		select distinct on (id) *   from (
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
@@ -265,20 +266,20 @@ func DeleteFromRecommended(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	material := c.Param("material_id")
-	_, err := db.Exec(context.Background(), `delete from recommends where material_id = $1`, material)
+	_, err := initializers.ConnPool.Exec(context.Background(), `delete from recommends where material_id = $1`, material)
 	if err != nil {
-		fmt.Println(error)
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to delete the material from recommends",
 		})
@@ -304,21 +305,21 @@ func UpdateRecommended(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	queue := c.Param("queue")
 	material_id := c.Param("material_id")
-	_, err := db.Exec(context.Background(), `update recommends set material_id = $1 where queue = $2 `, material_id, queue)
+	_, err := initializers.ConnPool.Exec(context.Background(), `update recommends set material_id = $1 where queue = $2 `, material_id, queue)
 	if err != nil {
-		fmt.Println(error)
+		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to update the material in recommends",
 		})

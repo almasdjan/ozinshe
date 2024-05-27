@@ -285,18 +285,18 @@ func GetMaterialById(c *gin.Context) {
 	var user models.User
 
 	initializers.DB.First(&user, userid)
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	material_id := c.Param("material_id")
 
-	movie := db.QueryRow(context.Background(), "select poster, title, publish_year,  duration, description, director, producer, viewed from materials where id = $1	", material_id)
+	movie := initializers.ConnPool.QueryRow(context.Background(), "select poster, title, publish_year,  duration, description, director, producer, viewed from materials where id = $1	", material_id)
 	if movie == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to get materials info",
@@ -314,7 +314,7 @@ func GetMaterialById(c *gin.Context) {
 		return
 	}
 
-	categoriesrows, err := db.Query(context.Background(), "select c.id, c.category_name from material_categories m join categories c on c.id = m.category_id where m.material_id = $1", material_id)
+	categoriesrows, err := initializers.ConnPool.Query(context.Background(), "select c.id, c.category_name from material_categories m join categories c on c.id = m.category_id where m.material_id = $1", material_id)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -338,7 +338,7 @@ func GetMaterialById(c *gin.Context) {
 
 	}
 
-	agesrows, err := db.Query(context.Background(), "select a.id, a.age from material_ages m join ages a on a.id = m.age_id where m.material_id = $1", material_id)
+	agesrows, err := initializers.ConnPool.Query(context.Background(), "select a.id, a.age from material_ages m join ages a on a.id = m.age_id where m.material_id = $1", material_id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to get ages",
@@ -360,7 +360,7 @@ func GetMaterialById(c *gin.Context) {
 
 	}
 
-	genrerows, err := db.Query(context.Background(), "select g.id, g.genre_name from material_genres m join genres g on g.id = m.genre_id where m.material_id = $1", material_id)
+	genrerows, err := initializers.ConnPool.Query(context.Background(), "select g.id, g.genre_name from material_genres m join genres g on g.id = m.genre_id where m.material_id = $1", material_id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to get ages",
@@ -382,7 +382,7 @@ func GetMaterialById(c *gin.Context) {
 
 	}
 
-	imagesrows, err := db.Query(context.Background(), "select image_src from image_srcs where material_id = $1", material_id)
+	imagesrows, err := initializers.ConnPool.Query(context.Background(), "select image_src from image_srcs where material_id = $1", material_id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to get images",
@@ -404,7 +404,7 @@ func GetMaterialById(c *gin.Context) {
 
 	}
 
-	row := db.QueryRow(context.Background(), "select count(*) from materials m join material_categories mc on m.id = mc.material_id join categories c on c.id = mc.category_id  where c.category_name like '%сериал%' and m.id = $1", material_id)
+	row := initializers.ConnPool.QueryRow(context.Background(), "select count(*) from materials m join material_categories mc on m.id = mc.material_id join categories c on c.id = mc.category_id  where c.category_name like '%сериал%' and m.id = $1", material_id)
 
 	if row == nil {
 
@@ -426,7 +426,7 @@ func GetMaterialById(c *gin.Context) {
 
 	if isSerial == 1 { //если сериал
 
-		series := db.QueryRow(context.Background(), "select count(distinct sezon), count(series) from videos where material_id = $1", material_id)
+		series := initializers.ConnPool.QueryRow(context.Background(), "select count(distinct sezon), count(series) from videos where material_id = $1", material_id)
 		if series == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to define sezons and series",
@@ -529,16 +529,16 @@ func GetMainList(c *gin.Context) {
 		})
 		return
 	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-
-	rows, err := db.Query(context.Background(), `select * from genres`)
+	rows, err := initializers.ConnPool.Query(context.Background(), `select * from genres`)
 
 	if err != nil {
 		fmt.Println(err)
@@ -562,7 +562,7 @@ func GetMainList(c *gin.Context) {
 		genres = append(genres, genre)
 	}
 
-	agerows, err := db.Query(context.Background(), `select * from ages`)
+	agerows, err := initializers.ConnPool.Query(context.Background(), `select * from ages`)
 
 	if err != nil {
 		fmt.Println(err)
@@ -623,26 +623,26 @@ func DeleteMaterial(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	id := c.Param("material_id")
-	_, err := db.Exec(context.Background(), `delete from material_ages where material_id=$1`, id)
-	_, err1 := db.Exec(context.Background(), `delete from material_categories where material_id=$1;`, id)
-	_, err2 := db.Exec(context.Background(), `delete from material_genres where material_id=$1`, id)
-	_, err3 := db.Exec(context.Background(), `delete from image_srcs where material_id=$1`, id)
-	_, err4 := db.Exec(context.Background(), `delete from user_favourites where material_id=$1`, id)
-	_, err5 := db.Exec(context.Background(), `delete from videos where material_id=$1`, id)
-	_, err6 := db.Exec(context.Background(), `delete from recommends where material_id=$1`, id)
-	_, err7 := db.Exec(context.Background(), `delete from user_history where material_id=$1`, id)
-	_, err8 := db.Exec(context.Background(), `delete from user_materials where material_id=$1`, id)
-	_, err9 := db.Exec(context.Background(), `delete from materials where id=$1`, id)
+	_, err := initializers.ConnPool.Exec(context.Background(), `delete from material_ages where material_id=$1`, id)
+	_, err1 := initializers.ConnPool.Exec(context.Background(), `delete from material_categories where material_id=$1;`, id)
+	_, err2 := initializers.ConnPool.Exec(context.Background(), `delete from material_genres where material_id=$1`, id)
+	_, err3 := initializers.ConnPool.Exec(context.Background(), `delete from image_srcs where material_id=$1`, id)
+	_, err4 := initializers.ConnPool.Exec(context.Background(), `delete from user_favourites where material_id=$1`, id)
+	_, err5 := initializers.ConnPool.Exec(context.Background(), `delete from videos where material_id=$1`, id)
+	_, err6 := initializers.ConnPool.Exec(context.Background(), `delete from recommends where material_id=$1`, id)
+	_, err7 := initializers.ConnPool.Exec(context.Background(), `delete from user_history where material_id=$1`, id)
+	_, err8 := initializers.ConnPool.Exec(context.Background(), `delete from user_materials where material_id=$1`, id)
+	_, err9 := initializers.ConnPool.Exec(context.Background(), `delete from materials where id=$1`, id)
 
 	if err != nil || err1 != nil || err2 != nil || err3 != nil || err4 != nil || err5 != nil || err6 != nil || err7 != nil || err8 != nil || err9 != nil {
 		fmt.Println(err)
@@ -689,15 +689,15 @@ func UpdateMaterial(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}
+	*/
 	id := c.Param("material_id")
 	var path string
 	posterr, err := c.FormFile("posterr")
@@ -720,7 +720,7 @@ func UpdateMaterial(c *gin.Context) {
 	duration := c.PostForm("duration")
 	fmt.Println(duration)
 	if title != "" {
-		_, err := db.Exec(context.Background(), "update materials set title = $1 WHERE id = $2", title, id)
+		_, err := initializers.ConnPool.Exec(context.Background(), "update materials set title = $1 WHERE id = $2", title, id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to update the material",
@@ -730,7 +730,7 @@ func UpdateMaterial(c *gin.Context) {
 	}
 
 	if description != "" {
-		_, err := db.Exec(context.Background(), "update materials set description = $1 WHERE id = $2", description, id)
+		_, err := initializers.ConnPool.Exec(context.Background(), "update materials set description = $1 WHERE id = $2", description, id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to update the material",
@@ -740,7 +740,7 @@ func UpdateMaterial(c *gin.Context) {
 	}
 
 	if director != "" {
-		_, err := db.Exec(context.Background(), "update materials set director = $1 WHERE id = $2", director, id)
+		_, err := initializers.ConnPool.Exec(context.Background(), "update materials set director = $1 WHERE id = $2", director, id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to update the material",
@@ -750,7 +750,7 @@ func UpdateMaterial(c *gin.Context) {
 	}
 
 	if producer != "" {
-		_, err := db.Exec(context.Background(), "update materials set producer = $1 WHERE id = $2", producer, id)
+		_, err := initializers.ConnPool.Exec(context.Background(), "update materials set producer = $1 WHERE id = $2", producer, id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to update the material",
@@ -760,7 +760,7 @@ func UpdateMaterial(c *gin.Context) {
 	}
 
 	if duration != "" {
-		_, err := db.Exec(context.Background(), "update materials set duration = $1 WHERE id = $2", duration, id)
+		_, err := initializers.ConnPool.Exec(context.Background(), "update materials set duration = $1 WHERE id = $2", duration, id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to update the material",
@@ -770,7 +770,7 @@ func UpdateMaterial(c *gin.Context) {
 	}
 
 	if publish_year != "" {
-		_, err := db.Exec(context.Background(), "update materials set publish_year = $1 WHERE id = $2", publish_year, id)
+		_, err := initializers.ConnPool.Exec(context.Background(), "update materials set publish_year = $1 WHERE id = $2", publish_year, id)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to update the material",
@@ -780,7 +780,7 @@ func UpdateMaterial(c *gin.Context) {
 	}
 
 	if path != "" {
-		_, err := db.Exec(context.Background(), "update materials set poster = $1 WHERE id = $2", posterr.Filename, id)
+		_, err := initializers.ConnPool.Exec(context.Background(), "update materials set poster = $1 WHERE id = $2", posterr.Filename, id)
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -820,18 +820,18 @@ func DeleteImage(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	image := c.Query("image")
 
-	_, err := db.Exec(context.Background(), `delete from image_srcs WHERE image_src = $1`, image)
+	_, err := initializers.ConnPool.Exec(context.Background(), `delete from image_srcs WHERE image_src = $1`, image)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to delete image",
@@ -870,14 +870,14 @@ func AddImage(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 	id := c.Param("material_id")
 
 	image_srcs, _ := c.MultipartForm()
@@ -889,7 +889,7 @@ func AddImage(c *gin.Context) {
 		c.SaveUploadedFile(file, path)
 
 		//adding filename in database
-		_, err := db.Exec(context.Background(), `insert into image_srcs values ($1,$2)`, id, file.Filename)
+		_, err := initializers.ConnPool.Exec(context.Background(), `insert into image_srcs values ($1,$2)`, id, file.Filename)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to add images",
@@ -921,16 +921,17 @@ func Search(c *gin.Context) {
 	var user models.User
 
 	initializers.DB.First(&user, userid)
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	search := c.Query("search")
-	rows, err := db.Query(context.Background(), `select id,poster, title, category_name, publish_year from (
+	rows, err := initializers.ConnPool.Query(context.Background(), `select id,poster, title, category_name, publish_year from (
 		select distinct on (id) *   from (
 			select  m.id,m.poster, m.title, c.category_name, m.publish_year from materials m
 			join material_categories mc on m.id = mc.material_id

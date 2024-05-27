@@ -265,15 +265,15 @@ func UpdateGenre(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}
+	*/
 	id := c.Param("genre_id")
 	var body models.Genrejson
 
@@ -286,7 +286,7 @@ func UpdateGenre(c *gin.Context) {
 
 	genre := body.Genre
 
-	_, err := db.Exec(context.Background(), "update genres set genre_name = $1 WHERE id = $2", genre, id)
+	_, err := initializers.ConnPool.Exec(context.Background(), "update genres set genre_name = $1 WHERE id = $2", genre, id)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -326,19 +326,19 @@ func DeleteGenreFromMaterial(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	genre := c.Param("genre_id")
 	id := c.Param("material_id")
 
-	_, err := db.Exec(context.Background(), `delete from material_genres WHERE genre_id = $1 and material_id = $2`, genre, id)
+	_, err := initializers.ConnPool.Exec(context.Background(), `delete from material_genres WHERE genre_id = $1 and material_id = $2`, genre, id)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -377,19 +377,19 @@ func AddGenreToMaterial(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 	id := c.Param("material_id")
 
 	genre := c.Param("genre_id")
 
-	_, err := db.Exec(context.Background(), `insert into material_genres values ($1,$2)`, id, genre)
+	_, err := initializers.ConnPool.Exec(context.Background(), `insert into material_genres values ($1,$2)`, id, genre)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to add genre",

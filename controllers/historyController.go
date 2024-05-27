@@ -20,17 +20,17 @@ func AddHistory(c *gin.Context) {
 	initializers.DB.First(&user, userid)
 
 	material_id := c.Param("material_id")
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect db",
+			})
+			return
+		}*/
 
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect db",
-		})
-		return
-	}
-
-	_, error = db.Exec(context.Background(), "delete from user_history where material_id = $1 and user_id= $2", material_id, user.ID)
+	_, error := initializers.ConnPool.Exec(context.Background(), "delete from user_history where material_id = $1 and user_id= $2", material_id, user.ID)
 	if error != nil {
 		fmt.Println(error)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -40,7 +40,7 @@ func AddHistory(c *gin.Context) {
 		return
 	}
 
-	_, err := db.Exec(context.Background(), "INSERT INTO user_history (material_id, user_id) VALUES ($1,$2)", material_id, user.ID)
+	_, err := initializers.ConnPool.Exec(context.Background(), "INSERT INTO user_history (material_id, user_id) VALUES ($1,$2)", material_id, user.ID)
 
 	if err != nil {
 		fmt.Println(err)
@@ -55,20 +55,20 @@ func AddHistory(c *gin.Context) {
 }
 
 func AddHistoryFunc(userId interface{}, material_id string) error {
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
 
-	db, error := initializers.ConnectDb()
-	if error != nil {
+			return error
+		}*/
 
-		return error
-	}
-
-	_, error = db.Exec(context.Background(), "delete from user_history where material_id = $1 and user_id= $2", material_id, userId)
+	_, error := initializers.ConnPool.Exec(context.Background(), "delete from user_history where material_id = $1 and user_id= $2", material_id, userId)
 	if error != nil {
 		fmt.Println(error)
 		return error
 	}
 
-	_, err := db.Exec(context.Background(), "INSERT INTO user_history (material_id, user_id) VALUES ($1,$2)", material_id, userId)
+	_, err := initializers.ConnPool.Exec(context.Background(), "INSERT INTO user_history (material_id, user_id) VALUES ($1,$2)", material_id, userId)
 
 	if err != nil {
 		fmt.Println(err)
@@ -95,17 +95,17 @@ func GetMaterialHistory(c *gin.Context) {
 
 	var user models.User
 	initializers.DB.First(&user, userid)
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-
-	rows, err := db.Query(context.Background(), "select m.id, m.poster, m.title from user_history us join materials m on m.id = us.material_id where user_id=$1 order by  us.id desc", userid)
+	rows, err := initializers.ConnPool.Query(context.Background(), "select m.id, m.poster, m.title from user_history us join materials m on m.id = us.material_id where user_id=$1 order by  us.id desc", userid)
 
 	if err != nil {
 		fmt.Println(err)
@@ -138,14 +138,14 @@ func GetMaterialHistoryMain(userid interface{}) ([]models.Material_history, erro
 
 	var user models.User
 	initializers.DB.First(&user, userid)
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			return nil, error
+		}*/
 
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		return nil, error
-	}
-
-	rows, err := db.Query(context.Background(), "select m.id, m.poster, m.title from user_history us join materials m on m.id = us.material_id where user_id=$1 order by  us.id desc LIMIT 5", userid)
+	rows, err := initializers.ConnPool.Query(context.Background(), "select m.id, m.poster, m.title from user_history us join materials m on m.id = us.material_id where user_id=$1 order by  us.id desc LIMIT 5", userid)
 
 	if err != nil {
 		fmt.Println(err)
@@ -185,15 +185,15 @@ func GetTrends(c *gin.Context) {
 
 	var user models.User
 	initializers.DB.First(&user, userid)
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 	/*
 		if li == 0 {
 			limitt := c.Query("limit")
@@ -207,7 +207,7 @@ func GetTrends(c *gin.Context) {
 
 		fmt.Println(li)*/
 
-	rows, err := db.Query(context.Background(), `select id,poster, title, category_name from (
+	rows, err := initializers.ConnPool.Query(context.Background(), `select id,poster, title, category_name from (
 		select distinct on (id) *   from (
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
@@ -244,13 +244,13 @@ func GetTrends(c *gin.Context) {
 }
 
 func GetTrendsMain() ([]models.Material_get, error) {
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
 
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		fmt.Println(error)
-
-		return nil, error
-	}
+			return nil, error
+		}*/
 	/*
 		if li == 0 {
 			limitt := c.Query("limit")
@@ -264,7 +264,7 @@ func GetTrendsMain() ([]models.Material_get, error) {
 
 		fmt.Println(li)*/
 
-	rows, err := db.Query(context.Background(), `select id,poster, title, category_name from (
+	rows, err := initializers.ConnPool.Query(context.Background(), `select id,poster, title, category_name from (
 		select distinct on (id) *   from (
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
