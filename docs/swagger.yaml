@@ -57,7 +57,7 @@ definitions:
       phone_number:
         type: string
     type: object
-host: localhost:8080
+host: ozinshetestapi.mobydev.kz
 info:
   contact: {}
   description: API Server for Ozinshe app
