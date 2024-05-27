@@ -14,11 +14,11 @@ import (
 func RequireAuth(c *gin.Context) {
 	//get the cookie
 	tokenString := c.GetHeader("Authorization")
-	tokenString = tokenString[7:]
 	if tokenString == "" {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
+	tokenString = tokenString[7:]
 
 	//decode/ validate token
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
