@@ -25,7 +25,9 @@ import (
 // @Router /main/series/{material_id}/{sezon} [get]
 func GetSezonsOrVideo(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User
@@ -180,7 +182,9 @@ func GetSezonsOrVideo(c *gin.Context) {
 
 func AddViewed(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User
@@ -245,7 +249,9 @@ func AddViewedFunc(userid interface{}, material_id string) error {
 // @Router /main/series/serial/{material_id}/{video_id} [get]
 func GetSerialSeries(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User

@@ -23,7 +23,9 @@ import (
 // @Router /admin/age [post]
 func CreateAge(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -85,7 +87,9 @@ func CreateAge(c *gin.Context) {
 // @Router /main/ages/{age_id} [get]
 func GetMovieByAge(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -144,7 +148,9 @@ func GetMovieByAge(c *gin.Context) {
 // @Router /admin/ages/{age_id} [delete]
 func DeleteAge(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -192,7 +198,9 @@ func DeleteAge(c *gin.Context) {
 // @Router /main/ages [get]
 func GetAges(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -253,7 +261,9 @@ func GetAges(c *gin.Context) {
 // @Router /admin/ages/{age_id} [patch]
 func UpdateAge(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -319,7 +329,9 @@ func UpdateAge(c *gin.Context) {
 // @Router /admin/agematerial/{material_id}/{age_id} [delete]
 func DeleteAgeFromMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -369,7 +381,9 @@ func DeleteAgeFromMaterial(c *gin.Context) {
 // @Router /admin/agematerial/{material_id}/{age_id} [post]
 func AddAgeToMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 

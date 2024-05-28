@@ -15,7 +15,8 @@ func RequireAuth(c *gin.Context) {
 	//get the cookie
 	tokenString := c.GetHeader("Authorization")
 	if tokenString == "" {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		c.Abort()
 		return
 	}
 	tokenString = tokenString[7:]
@@ -55,7 +56,7 @@ func RequireAuth(c *gin.Context) {
 		c.Next()
 
 	} else {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
 		return
 	}
 

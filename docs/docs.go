@@ -1653,42 +1653,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/favourites/{material_id}": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Add the movie to favourite list",
-                "summary": "Add to favourite",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Material ID of the movie",
-                        "name": "material_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/main": {
             "get": {
                 "security": [
@@ -1860,6 +1824,74 @@ const docTemplate = `{
                 }
             }
         },
+        "/main/favourites": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "main"
+                ],
+                "summary": "Favourites",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/main/favourites/{material_id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add the movie to favourite list",
+                "tags": [
+                    "main"
+                ],
+                "summary": "Add to favourite",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Material ID of the movie",
+                        "name": "material_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/main/foryou": {
             "get": {
                 "consumes": [
@@ -1867,6 +1899,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "main"
                 ],
                 "summary": "Get random movies",
                 "responses": {

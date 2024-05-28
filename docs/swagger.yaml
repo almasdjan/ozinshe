@@ -1136,29 +1136,6 @@ paths:
       summary: Update User Info
       tags:
       - auth
-  /favourites/{material_id}:
-    post:
-      description: Add the movie to favourite list
-      parameters:
-      - description: Material ID of the movie
-        in: path
-        name: material_id
-        required: true
-        type: string
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Add to favourite
   /main:
     get:
       responses:
@@ -1269,6 +1246,49 @@ paths:
       summary: get all categories
       tags:
       - main
+  /main/favourites:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Favourites
+      tags:
+      - main
+  /main/favourites/{material_id}:
+    post:
+      description: Add the movie to favourite list
+      parameters:
+      - description: Material ID of the movie
+        in: path
+        name: material_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add to favourite
+      tags:
+      - main
   /main/foryou:
     get:
       consumes:
@@ -1292,6 +1312,8 @@ paths:
             additionalProperties: true
             type: object
       summary: Get random movies
+      tags:
+      - main
   /main/genres:
     get:
       consumes:

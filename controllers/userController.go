@@ -224,10 +224,17 @@ func Logout(c *gin.Context) {
 // @Router /auth/userinfo [get]
 func GetUserInfo(c *gin.Context) {
 	middleware.RequireAuth(c)
+	if c.IsAborted() {
+		return
+	}
+	if c.IsAborted() {
+		return
+	}
 
 	userid, _ := c.Get("user")
 
 	var user models.User
+
 	initializers.DB.First(&user, userid)
 
 	c.JSON(http.StatusOK, gin.H{
@@ -249,7 +256,9 @@ func GetUserInfo(c *gin.Context) {
 // @Router /auth/userinfo [patch]
 func UpdateUserInfo(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User
@@ -301,7 +310,9 @@ func UpdateUserInfo(c *gin.Context) {
 // @Router /auth/password [patch]
 func ChangePassword(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User
@@ -366,22 +377,27 @@ func ChangePassword(c *gin.Context) {
 // @Router /auth/profile [delete]
 func DeleteProfile(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 	initializers.DB.Delete(&user, userid)
 }
 
 // @Summary Add to favourite
+// @Tags main
 // @Description Add the movie to favourite list
 // @Security BearerAuth
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Param material_id path string true "Material ID of the movie"
-// @Router /favourites/{material_id} [post]
+// @Router /main/favourites/{material_id} [post]
 func AddFavouriteMovie(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User

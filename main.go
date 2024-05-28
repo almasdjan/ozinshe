@@ -46,7 +46,6 @@ func main() {
 
 	r.GET("/logout", controllers.Logout)
 	r.GET("/requireauth", middleware.RequireAuth)
-	r.POST("/favourites/:material_id", controllers.AddFavouriteMovie)
 
 	admin := r.Group("/admin")
 
@@ -102,6 +101,8 @@ func main() {
 	main.GET("/recommends", controllers.GetRecommended)
 
 	main.GET("/search", controllers.Search)
+	main.POST("/favourites/:material_id", controllers.AddFavouriteMovie)
+	main.GET("/favourites", controllers.GetFavouriteMovies)
 
 	r.PATCH("/updaterecommends/:queue/:material_id", controllers.UpdateRecommended)
 	r.POST("/addhistory/:material_id", controllers.AddHistory)

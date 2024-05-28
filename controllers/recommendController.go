@@ -23,7 +23,9 @@ import (
 // @Router /admin/recommends/{material_id} [post]
 func AddRecommend(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -73,7 +75,9 @@ func AddRecommend(c *gin.Context) {
 // @Router /main/recommends [get]
 func GetRecommended(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User
@@ -143,6 +147,7 @@ func GetRecommendedData() ([]models.Material_recommend, error) {
 }
 
 // @Summary Get random movies
+// @Tags main
 // @Accept json
 // @Produce json
 // @Success 200 {object} map[string]any
@@ -151,7 +156,9 @@ func GetRecommendedData() ([]models.Material_recommend, error) {
 // @Router /main/foryou [get]
 func GetRandomMovie(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User
@@ -254,7 +261,9 @@ func GetRandomMovieMain() ([]models.Material_get, error) {
 // @Router /admin/recommends/{material_id} [delete]
 func DeleteFromRecommended(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User
@@ -293,7 +302,9 @@ func DeleteFromRecommended(c *gin.Context) {
 
 func UpdateRecommended(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User

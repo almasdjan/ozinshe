@@ -13,7 +13,9 @@ import (
 
 func AddHistory(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User
@@ -90,7 +92,9 @@ func AddHistoryFunc(userId interface{}, material_id string) error {
 // @Router /main/history [get]
 func GetMaterialHistory(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User
@@ -180,7 +184,9 @@ const MaxUint = ^uint(0)
 // @Router /main/trends [get]
 func GetTrends(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 
 	var user models.User
@@ -289,5 +295,58 @@ func GetTrendsMain() ([]models.Material_get, error) {
 		materials = append(materials, material)
 	}
 	return materials, err
+
+}
+
+// @Summary Favourites
+// @Tags main
+// @Security BearerAuth
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /main/favourites [get]
+func GetFavouriteMovies(c *gin.Context) {
+	middleware.RequireAuth(c)
+	if c.IsAborted() {
+		return
+	}
+	userid, _ := c.Get("user")
+
+	var user models.User
+	initializers.DB.First(&user, userid)
+
+	rows, err := initializers.ConnPool.Query(context.Background(),
+		`select id,poster, title, category_name from (
+		select distinct on (id) *   from (
+			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
+			join material_categories mc on m.id = mc.material_id
+			join categories c on mc.category_id = c.id
+			join user_favourites uf on  uf.material_id=m.id
+			where uf.user_id = $1
+		)) `, userid)
+
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+
+			"error": "Failed to get materials info",
+		})
+		return
+	}
+
+	var materials []models.Material_get
+	for rows.Next() {
+		var material models.Material_get
+		err := rows.Scan(&material.Material_id, &material.Title, &material.Poster, &material.Category)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to define materilas",
+			})
+			return
+		}
+		materials = append(materials, material)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"favourites": materials,
+	})
 
 }

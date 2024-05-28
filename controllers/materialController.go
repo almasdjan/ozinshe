@@ -35,7 +35,9 @@ import (
 // @Router /admin/material [post]
 func CreateMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -280,7 +282,9 @@ func CreateMaterial(c *gin.Context) {
 // @Router /main/material/{material_id} [get]
 func GetMaterialById(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -492,7 +496,9 @@ type MainResponse struct {
 // @Router /main [get]
 func GetMainList(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -609,7 +615,9 @@ func GetMainList(c *gin.Context) {
 // @Router /admin/material/{material_id} [delete]
 func DeleteMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -675,7 +683,9 @@ func DeleteMaterial(c *gin.Context) {
 // @Router /admin/material/{material_id} [patch]
 func UpdateMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -806,7 +816,9 @@ func UpdateMaterial(c *gin.Context) {
 // @Router /admin/materialimage [delete]
 func DeleteImage(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -856,7 +868,9 @@ func DeleteImage(c *gin.Context) {
 // @Router /admin/materialimage/{material_id} [post]
 func AddImage(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -914,7 +928,9 @@ func AddImage(c *gin.Context) {
 // @Router /main/search [get]
 func Search(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 

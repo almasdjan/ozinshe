@@ -23,7 +23,9 @@ import (
 // @Router /admin/categories [post]
 func CreateCategory(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -85,7 +87,9 @@ func CreateCategory(c *gin.Context) {
 // @Router /admin/categories/{category_id} [delete]
 func DeleteCategory(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -133,7 +137,9 @@ func DeleteCategory(c *gin.Context) {
 // @Router /main/categories [get]
 func GetCategories(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -194,7 +200,9 @@ func GetCategories(c *gin.Context) {
 // @Router /admin/categories/{category_id} [patch]
 func UpdateCategories(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -256,7 +264,9 @@ func UpdateCategories(c *gin.Context) {
 // @Router /admin/categorymaterial/{material_id}/{category_id} [delete]
 func DeleteGenreCategoryMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -306,7 +316,9 @@ func DeleteGenreCategoryMaterial(c *gin.Context) {
 // @Router /admin/categorymaterial/{material_id}/{category_id} [post]
 func AddCategoryToMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 

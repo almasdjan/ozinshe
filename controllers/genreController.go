@@ -192,8 +192,11 @@ func DeleteGenre(c *gin.Context) {
 // @Router /main/genres [get]
 func GetGenres(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
+
 	var user models.User
 
 	initializers.DB.First(&user, userid)
