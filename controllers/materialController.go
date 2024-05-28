@@ -486,8 +486,6 @@ type MainResponse struct {
 // @Summary main page
 // @Security BearerAuth
 // @Tags main
-// @Accept json
-// @Produce json
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any

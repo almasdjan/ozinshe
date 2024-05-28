@@ -1161,10 +1161,6 @@ paths:
       summary: Add to favourite
   /main:
     get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
       responses:
         "200":
           description: OK

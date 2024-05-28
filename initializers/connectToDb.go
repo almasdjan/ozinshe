@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/pkg/errors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -33,12 +32,12 @@ const (
 
 var ConnPool *pgxpool.Pool
 
-func ConnectDb() (*pgxpool.Pool, error) {
+func ConnectDb() {
 	dsn := os.Getenv("DB")
 	//dataSource := fmt.Sprintf("host=localhost user=postgres password=229847 dbname=ozinshe port=5432 sslmode=disable")
 	poolCfg, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
-		return nil, err
+		panic("Failed to connection to database")
 	}
 
 	poolCfg.MaxConns = maxConns
@@ -50,8 +49,7 @@ func ConnectDb() (*pgxpool.Pool, error) {
 
 	ConnPool, err = pgxpool.ConnectConfig(context.Background(), poolCfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "pgx.ConnectConfig")
+		panic("Failed to connection to database")
 	}
-	return ConnPool, nil
 
 }

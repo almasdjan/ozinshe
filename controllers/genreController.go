@@ -89,18 +89,18 @@ func GetMovieByGenre(c *gin.Context) {
 	var user models.User
 
 	initializers.DB.First(&user, userid)
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	genre_id := c.Param("genre_id")
 
-	rows, err := db.Query(context.Background(), `select  m.id,m.poster, m.title, c.genre_name from materials m
+	rows, err := initializers.ConnPool.Query(context.Background(), `select  m.id,m.poster, m.title, c.genre_name from materials m
 	join material_genres mc on m.id = mc.material_id
 	join genres c on mc.genre_id = c.id
 	where c.id = $1`, genre_id)
@@ -156,17 +156,17 @@ func DeleteGenre(c *gin.Context) {
 		})
 		return
 	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
 
 	id := c.Param("genre_id")
-	_, err := db.Exec(context.Background(), "DELETE FROM genres WHERE id = $1", id)
+	_, err := initializers.ConnPool.Exec(context.Background(), "DELETE FROM genres WHERE id = $1", id)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -197,22 +197,15 @@ func GetGenres(c *gin.Context) {
 	var user models.User
 
 	initializers.DB.First(&user, userid)
-
-	if !user.Isadmin {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "This account is not admin",
-		})
-		return
-	}
-
-	db, error := initializers.ConnectDb()
-	if error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to connect database",
-		})
-		return
-	}
-	rows, err := db.Query(context.Background(), `select * from genres`)
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
+	rows, err := initializers.ConnPool.Query(context.Background(), `select * from genres`)
 
 	if err != nil {
 		fmt.Println(err)

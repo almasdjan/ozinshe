@@ -150,12 +150,12 @@ func GetRecommendedData() ([]models.Material_recommend, error) {
 // @Failure 500 {object} map[string]any
 // @Router /main/foryou [get]
 func GetRandomMovie(c *gin.Context) {
-	//middleware.RequireAuth(c)
+	middleware.RequireAuth(c)
 
-	//userid, _ := c.Get("user")
+	userid, _ := c.Get("user")
 
-	//var user models.User
-	//initializers.DB.First(&user, userid)
+	var user models.User
+	initializers.DB.First(&user, userid)
 	/*
 		db, error := initializers.ConnectDb()
 		if error != nil {
