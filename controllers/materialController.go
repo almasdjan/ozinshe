@@ -553,7 +553,7 @@ func GetMainList(c *gin.Context) {
 		return
 	}
 
-	var genres []models.Genre
+	var genres = []models.Genre{}
 	for rows.Next() {
 		var genre models.Genre
 		err := rows.Scan(&genre.ID, &genre.GenreName)
@@ -577,7 +577,7 @@ func GetMainList(c *gin.Context) {
 		return
 	}
 
-	var ages []models.Age
+	var ages = []models.Age{}
 	for agerows.Next() {
 		var age models.Age
 		err := agerows.Scan(&age.ID, &age.Age)
@@ -963,7 +963,7 @@ func Search(c *gin.Context) {
 		return
 	}
 
-	var materials []models.Material_search
+	var materials = []models.Material_search{}
 	for rows.Next() {
 		var material models.Material_search
 		err := rows.Scan(&material.Material_id, &material.Poster, &material.Title, &material.Category, &material.Publish_year)

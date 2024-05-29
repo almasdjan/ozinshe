@@ -119,7 +119,7 @@ func GetMaterialHistory(c *gin.Context) {
 		return
 	}
 
-	var materials []models.Material_history
+	var materials = []models.Material_history{}
 	for rows.Next() {
 		var material models.Material_history
 		err := rows.Scan(&material.Id, &material.Poster, &material.Title)
@@ -149,14 +149,14 @@ func GetMaterialHistoryMain(userid interface{}) ([]models.Material_history, erro
 			return nil, error
 		}*/
 
-	rows, err := initializers.ConnPool.Query(context.Background(), "select m.id, m.poster, m.title from user_history us join materials m on m.id = us.material_id where user_id=$1 order by  us.id desc LIMIT 5", userid)
+	rows, err := initializers.ConnPool.Query(context.Background(), "select m.id, m.poster,m.title from user_history us join materials m on m.id = us.material_id where user_id=$1 order by  us.id desc LIMIT 5", userid)
 
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
 
-	var materials []models.Material_history
+	var materials = []models.Material_history{}
 	for rows.Next() {
 		var material models.Material_history
 		err := rows.Scan(&material.Id, &material.Poster, &material.Title)
@@ -213,7 +213,7 @@ func GetTrends(c *gin.Context) {
 
 		fmt.Println(li)*/
 
-	rows, err := initializers.ConnPool.Query(context.Background(), `select id,poster, title, category_name from (
+	rows, err := initializers.ConnPool.Query(context.Background(), `select id, title,poster, category_name from (
 		select distinct on (id) *   from (
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
@@ -231,7 +231,7 @@ func GetTrends(c *gin.Context) {
 		return
 	}
 
-	var materials []models.Material_get
+	var materials = []models.Material_get{}
 	for rows.Next() {
 		var material models.Material_get
 		err := rows.Scan(&material.Material_id, &material.Title, &material.Poster, &material.Category)
@@ -270,7 +270,7 @@ func GetTrendsMain() ([]models.Material_get, error) {
 
 		fmt.Println(li)*/
 
-	rows, err := initializers.ConnPool.Query(context.Background(), `select id,poster, title, category_name from (
+	rows, err := initializers.ConnPool.Query(context.Background(), `select id, title,poster, category_name from (
 		select distinct on (id) *   from (
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
@@ -284,7 +284,7 @@ func GetTrendsMain() ([]models.Material_get, error) {
 		return nil, err
 	}
 
-	var materials []models.Material_get
+	var materials = []models.Material_get{}
 	for rows.Next() {
 		var material models.Material_get
 		err := rows.Scan(&material.Material_id, &material.Title, &material.Poster, &material.Category)
@@ -315,7 +315,7 @@ func GetFavouriteMovies(c *gin.Context) {
 	initializers.DB.First(&user, userid)
 
 	rows, err := initializers.ConnPool.Query(context.Background(),
-		`select id,poster, title, category_name from (
+		`select id, title,poster, category_name from (
 		select distinct on (id) *   from (
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
@@ -333,7 +333,7 @@ func GetFavouriteMovies(c *gin.Context) {
 		return
 	}
 
-	var materials []models.Material_get
+	var materials = []models.Material_get{}
 	for rows.Next() {
 		var material models.Material_get
 		err := rows.Scan(&material.Material_id, &material.Title, &material.Poster, &material.Category)
@@ -347,6 +347,40 @@ func GetFavouriteMovies(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"favourites": materials,
+	})
+
+}
+
+// @Summary Delete From Favourites
+// @Tags main
+// @Security BearerAuth
+// @Param material_id path string true "material id"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Router /main/favourites/{material_id} [delete]
+func DeleteFromFavourites(c *gin.Context) {
+	middleware.RequireAuth(c)
+	if c.IsAborted() {
+		return
+	}
+	userid, _ := c.Get("user")
+
+	var user models.User
+	initializers.DB.First(&user, userid)
+
+	material_id := c.Param("material_id")
+	_, error := initializers.ConnPool.Exec(context.Background(), "delete from user_favourites where material_id = $1 and user_id= $2", material_id, user.ID)
+	if error != nil {
+		fmt.Println(error)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": error,
+			"err":   "failed to delete",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"Status": "Success",
 	})
 
 }

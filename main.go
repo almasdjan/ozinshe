@@ -25,6 +25,7 @@ func init() {
 // @description API Server for Ozinshe app
 
 // @host ozinshetestapi.mobydev.kz
+//ozinshetestapi.mobydev.kz
 // @BasePath /
 
 // @securityDefinitions.apikey BearerAuth
@@ -103,6 +104,7 @@ func main() {
 	main.GET("/search", controllers.Search)
 	main.POST("/favourites/:material_id", controllers.AddFavouriteMovie)
 	main.GET("/favourites", controllers.GetFavouriteMovies)
+	main.DELETE("/favourites/:material_id", controllers.DeleteFromFavourites)
 
 	r.PATCH("/updaterecommends/:queue/:material_id", controllers.UpdateRecommended)
 	r.POST("/addhistory/:material_id", controllers.AddHistory)

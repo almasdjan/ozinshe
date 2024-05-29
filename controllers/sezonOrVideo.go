@@ -83,7 +83,7 @@ func GetSezonsOrVideo(c *gin.Context) {
 			return
 		}
 
-		var sezons []int
+		var sezons = []int{}
 
 		for rows.Next() {
 			var sezon int
@@ -114,7 +114,7 @@ func GetSezonsOrVideo(c *gin.Context) {
 			return
 		}
 
-		var series []models.Series
+		var series = []models.Series{}
 		for rowsSeries.Next() {
 			var series1 models.Series
 			err := rowsSeries.Scan(&series1.Id, &series1.Series, &series1.Image_src, &series1.Video_src)

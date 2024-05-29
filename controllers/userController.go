@@ -267,25 +267,24 @@ func UpdateUserInfo(c *gin.Context) {
 	var body models.Userupdate
 
 	c.Bind(&body)
+	/*
+		exist := initializers.DB.Where("email=?", body.Email).First(&user)
 
-	exist := initializers.DB.Where("email=?", body.Email).First(&user)
+		if exist.RowsAffected > 0 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "This email is already exists",
+			})
+			return
+		}
 
-	if exist.RowsAffected > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "This email is already exists",
-		})
-		return
-	}
-
-	if !isEmailValid(body.Email) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Incorrect email format",
-		})
-		return
-	}
-
+		if !isEmailValid(body.Email) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Incorrect email format",
+			})
+			return
+		}
+	*/
 	user.Name = body.Name
-	user.Email = body.Email
 	user.Phone_number = body.Phone_number
 	user.Birthday = body.Birthday
 
@@ -293,7 +292,6 @@ func UpdateUserInfo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"name":         user.Name,
-		"email":        user.Email,
 		"phone_number": user.Phone_number,
 		"birthday":     user.Birthday,
 	})

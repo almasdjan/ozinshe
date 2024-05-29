@@ -1890,10 +1890,51 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "main"
+                ],
+                "summary": "Delete From Favourites",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "material id",
+                        "name": "material_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             }
         },
         "/main/foryou": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -2494,9 +2535,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "birthday": {
-                    "type": "string"
-                },
-                "email": {
                     "type": "string"
                 },
                 "name": {

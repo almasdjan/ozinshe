@@ -22,7 +22,9 @@ import (
 // @Router /admin/genres [post]
 func CreateGenre(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -84,7 +86,9 @@ func CreateGenre(c *gin.Context) {
 // @Router /main/genres/{genre_id} [get]
 func GetMovieByGenre(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -100,7 +104,7 @@ func GetMovieByGenre(c *gin.Context) {
 
 	genre_id := c.Param("genre_id")
 
-	rows, err := initializers.ConnPool.Query(context.Background(), `select  m.id,m.poster, m.title, c.genre_name from materials m
+	rows, err := initializers.ConnPool.Query(context.Background(), `select  m.id,m.title,m.poster,  c.genre_name from materials m
 	join material_genres mc on m.id = mc.material_id
 	join genres c on mc.genre_id = c.id
 	where c.id = $1`, genre_id)
@@ -114,7 +118,7 @@ func GetMovieByGenre(c *gin.Context) {
 		return
 	}
 
-	var materials []models.Material_get
+	var materials = []models.Material_get{}
 	for rows.Next() {
 		var material models.Material_get
 		err := rows.Scan(&material.Material_id, &material.Title, &material.Poster, &material.Category)
@@ -144,7 +148,9 @@ func GetMovieByGenre(c *gin.Context) {
 // @Router /admin/genres/{genre_id} [delete]
 func DeleteGenre(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -219,7 +225,7 @@ func GetGenres(c *gin.Context) {
 		return
 	}
 
-	var genres []models.Genre
+	var genres = []models.Genre{}
 	for rows.Next() {
 		var genre models.Genre
 		err := rows.Scan(&genre.ID, &genre.GenreName)
@@ -249,7 +255,9 @@ func GetGenres(c *gin.Context) {
 // @Router /admin/genres/{genre_id} [patch]
 func UpdateGenre(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -310,7 +318,9 @@ func UpdateGenre(c *gin.Context) {
 // @Router /admin/genrematerial/{material_id}/{genre_id} [delete]
 func DeleteGenreFromMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 
@@ -361,7 +371,9 @@ func DeleteGenreFromMaterial(c *gin.Context) {
 // @Router /admin/genrematerial/{material_id}/{genre_id} [post]
 func AddGenreToMaterial(c *gin.Context) {
 	middleware.RequireAuth(c)
-
+	if c.IsAborted() {
+		return
+	}
 	userid, _ := c.Get("user")
 	var user models.User
 

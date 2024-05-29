@@ -105,7 +105,7 @@ func GetMovieByAge(c *gin.Context) {
 	*/
 	age_id := c.Param("age_id")
 
-	rows, err := initializers.ConnPool.Query(context.Background(), `select  m.id,m.poster, m.title, c.age from materials m
+	rows, err := initializers.ConnPool.Query(context.Background(), `select  m.id, m.title,m.poster, c.age from materials m
 	join material_ages mc on m.id = mc.material_id
 	join ages c on mc.age_id = c.id
 	where c.id = $1`, age_id)
@@ -119,7 +119,7 @@ func GetMovieByAge(c *gin.Context) {
 		return
 	}
 
-	var materials []models.Material_get
+	var materials = []models.Material_get{}
 	for rows.Next() {
 		var material models.Material_get
 		err := rows.Scan(&material.Material_id, &material.Title, &material.Poster, &material.Category)
@@ -206,12 +206,6 @@ func GetAges(c *gin.Context) {
 
 	initializers.DB.First(&user, userid)
 
-	if !user.Isadmin {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "This account is not admin",
-		})
-		return
-	}
 	/*
 		db, error := initializers.ConnectDb()
 		if error != nil {
@@ -231,7 +225,7 @@ func GetAges(c *gin.Context) {
 		return
 	}
 
-	var ages []models.Age
+	var ages = []models.Age{}
 	for rows.Next() {
 		var age models.Age
 		err := rows.Scan(&age.ID, &age.Age)

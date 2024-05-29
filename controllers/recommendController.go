@@ -100,7 +100,7 @@ func GetRecommended(c *gin.Context) {
 		})
 		return
 	}
-	var materials []models.Material_recommend
+	var materials = []models.Material_recommend{}
 
 	for rows.Next() {
 		var materialRecommed models.Material_recommend
@@ -134,7 +134,7 @@ func GetRecommendedData() ([]models.Material_recommend, error) {
 	}
 	defer rows.Close()
 
-	var materials []models.Material_recommend
+	var materials = []models.Material_recommend{}
 	for rows.Next() {
 		var material models.Material_recommend
 		err := rows.Scan(&material.Material_id, &material.Poster, &material.Title, &material.Description)
@@ -147,6 +147,7 @@ func GetRecommendedData() ([]models.Material_recommend, error) {
 }
 
 // @Summary Get random movies
+// @Security BearerAuth
 // @Tags main
 // @Accept json
 // @Produce json
@@ -172,7 +173,12 @@ func GetRandomMovie(c *gin.Context) {
 			})
 			return
 		}*/
-	rows, err := initializers.ConnPool.Query(context.Background(), `select id,poster, title, category_name from (
+	rows, err := initializers.ConnPool.Query(context.Background(), `select id, title,poster,
+	
+	
+	
+	
+	category_name from (
 		select distinct on (id) *   from (
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
@@ -190,7 +196,7 @@ func GetRandomMovie(c *gin.Context) {
 		return
 	}
 
-	var materials []models.Material_get
+	var materials = []models.Material_get{}
 	for rows.Next() {
 		var material models.Material_get
 		err := rows.Scan(&material.Material_id, &material.Title, &material.Poster, &material.Category)
@@ -222,7 +228,7 @@ func GetRandomMovieMain() ([]models.Material_get, error) {
 
 			return nil, error
 		}*/
-	rows, err := initializers.ConnPool.Query(context.Background(), `select id,poster, title, category_name from (
+	rows, err := initializers.ConnPool.Query(context.Background(), `select id, title, poster,category_name from (
 		select distinct on (id) *   from (
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
@@ -236,7 +242,7 @@ func GetRandomMovieMain() ([]models.Material_get, error) {
 		return nil, err
 	}
 
-	var materials []models.Material_get
+	var materials = []models.Material_get{}
 	for rows.Next() {
 		var material models.Material_get
 		err := rows.Scan(&material.Material_id, &material.Title, &material.Poster, &material.Category)

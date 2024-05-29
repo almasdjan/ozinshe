@@ -145,12 +145,6 @@ func GetCategories(c *gin.Context) {
 
 	initializers.DB.First(&user, userid)
 
-	if !user.Isadmin {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "This account is not admin",
-		})
-		return
-	}
 	/*
 		db, error := initializers.ConnectDb()
 		if error != nil {
@@ -170,7 +164,7 @@ func GetCategories(c *gin.Context) {
 		return
 	}
 
-	var categories []models.Category
+	var categories = []models.Category{}
 	for rows.Next() {
 		var category models.Category
 		err := rows.Scan(&category.ID, &category.CategoryName)

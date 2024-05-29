@@ -37,7 +37,6 @@ type User_favourites struct {
 }
 
 type Userupdate struct {
-	Email        string `json:"email"`
 	Name         string `json:"name"`
 	Phone_number string `json:"phone_number"`
 	Birthday     string `json:"birthday"`

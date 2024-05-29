@@ -50,8 +50,6 @@ definitions:
     properties:
       birthday:
         type: string
-      email:
-        type: string
       name:
         type: string
       phone_number:
@@ -1265,6 +1263,29 @@ paths:
       tags:
       - main
   /main/favourites/{material_id}:
+    delete:
+      parameters:
+      - description: material id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete From Favourites
+      tags:
+      - main
     post:
       description: Add the movie to favourite list
       parameters:
@@ -1311,6 +1332,8 @@ paths:
           schema:
             additionalProperties: true
             type: object
+      security:
+      - BearerAuth: []
       summary: Get random movies
       tags:
       - main
