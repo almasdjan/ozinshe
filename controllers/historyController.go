@@ -218,9 +218,9 @@ func GetTrends(c *gin.Context) {
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
 			join categories c on mc.category_id = c.id
-		)
+		) as foo
 	 
-	)order by viewed desc limit null `)
+	) as foor order by viewed desc `)
 
 	if err != nil {
 		fmt.Println(err)
@@ -275,9 +275,9 @@ func GetTrendsMain() ([]models.Material_get, error) {
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
 			join categories c on mc.category_id = c.id
-		)
+		) as foo
 	 
-	)order by viewed desc limit 5`)
+	) as foor order by viewed desc limit 5`)
 
 	if err != nil {
 		fmt.Println(err)
