@@ -950,10 +950,10 @@ func Search(c *gin.Context) {
 			select  m.id,m.poster, m.title, c.category_name, m.publish_year from materials m
 			join material_categories mc on m.id = mc.material_id
 			join categories c on mc.category_id = c.id
-			where m.title like '%' || $1 || '%' 
-		)
+			where m.title ILIKE '%' || $1 || '%' 
+		)as foo
 	 
-	)`, search)
+	)as foor`, search)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{

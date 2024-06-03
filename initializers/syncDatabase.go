@@ -8,3 +8,7 @@ func SyncDatabase() {
 	DB.AutoMigrate(&models.Image_src{})
 
 }
+
+
+
+

@@ -183,9 +183,9 @@ func GetRandomMovie(c *gin.Context) {
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
 			join categories c on mc.category_id = c.id
-		)
+		)as foo
 	 
-	)order by random()`)
+	)as foor order by random()`)
 
 	if err != nil {
 		fmt.Println(err)
@@ -233,9 +233,9 @@ func GetRandomMovieMain() ([]models.Material_get, error) {
 			select  m.id,m.poster, m.title, c.category_name, m.viewed from materials m
 			join material_categories mc on m.id = mc.material_id
 			join categories c on mc.category_id = c.id
-		)
+		)as foo
 	 
-	)order by random() LIMIT 5 `)
+	)as foor order by random() LIMIT 5 `)
 
 	if err != nil {
 		fmt.Println(err)

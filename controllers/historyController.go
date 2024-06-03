@@ -322,7 +322,8 @@ func GetFavouriteMovies(c *gin.Context) {
 			join categories c on mc.category_id = c.id
 			join user_favourites uf on  uf.material_id=m.id
 			where uf.user_id = $1
-		)) `, userid)
+			)as foo
+		) as foor`, userid)
 
 	if err != nil {
 		fmt.Println(err)
