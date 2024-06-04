@@ -24,7 +24,7 @@ func init() {
 // @version 1.0
 // @description API Server for Ozinshe app
 
-// @host ozinshetestapi.mobydev.kz
+// @host //ozinshetestapi.mobydev.kz
 //ozinshetestapi.mobydev.kz
 // @BasePath /
 
@@ -81,6 +81,8 @@ func main() {
 	admin.PATCH("/material/:material_id", controllers.UpdateMaterial)
 	admin.POST("/materialimage/:material_id", controllers.AddImage)
 	admin.DELETE("materialimage", controllers.DeleteImage)
+
+	admin.GET("material", controllers.GetAllMovies)
 
 	main := r.Group("/main")
 	main.GET("/ages", controllers.GetAges)

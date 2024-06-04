@@ -47,6 +47,7 @@ type Material_get struct {
 	Title       string
 	Poster      string
 	Category    string
+	Viewed      int
 }
 
 type Material_search struct {
