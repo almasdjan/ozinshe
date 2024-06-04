@@ -100,7 +100,7 @@ func Signup(c *gin.Context) {
 	}
 
 	//create user
-	user = models.User{Email: body.Email, Password: string(hash), Name: body.Name, Phone_number: body.Phone_number, Birthday: body.Birthday}
+	user = models.User{Email: body.Email, Password: string(hash), Name: body.Name, Phone_number: body.Phone_number, Birthday: body.Birthday, Isadmin: true}
 	//user := models.User{Email: body.Email, Password: string(hash)}
 	result := initializers.DB.Create(&user)
 
