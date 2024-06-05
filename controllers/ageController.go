@@ -7,6 +7,7 @@ import (
 	"project1/initializers"
 	"project1/middleware"
 	"project1/models"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +18,8 @@ import (
 // @Description Create age category
 // @Accept json
 // @Produce json
-// @Param age body models.Agejson true "Age category"
+// @Param age formData string true "Age category"
+// @Param image formData file true "Image"
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Router /admin/age [post]
@@ -38,13 +40,21 @@ func CreateAge(c *gin.Context) {
 		return
 	}
 
-	var body models.Agejson
-
-	if c.Bind(&body) != nil {
+	ageName := c.PostForm("age")
+	image, err := c.FormFile("image")
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
+			"error": "Failed to read the image",
 		})
 		return
+	}
+
+	path := "files//ages//" + image.Filename
+	c.SaveUploadedFile(image, path)
+
+	body := models.Age{
+		Age:   ageName,
+		Image: path,
 	}
 
 	var age models.Age
@@ -57,7 +67,7 @@ func CreateAge(c *gin.Context) {
 		return
 	}
 
-	age = models.Age{Age: body.Age}
+	age = models.Age{Age: body.Age, Image: body.Image}
 
 	result := initializers.DB.Create(&age)
 
@@ -228,7 +238,7 @@ func GetAges(c *gin.Context) {
 	var ages = []models.Age{}
 	for rows.Next() {
 		var age models.Age
-		err := rows.Scan(&age.ID, &age.Age)
+		err := rows.Scan(&age.ID, &age.Age, &age.Image)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to define ages",
@@ -248,7 +258,8 @@ func GetAges(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param age_id path string true "age id"
-// @Param age body models.Agejson true "Age category"
+// @Param age formData string false "Age category"
+// @Param image formData file false "Image"
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
@@ -279,27 +290,60 @@ func UpdateAge(c *gin.Context) {
 		}*/
 
 	id := c.Param("age_id")
+	getAgeQuery := `select age, image from ages where id = $1`
+	getAge := initializers.ConnPool.QueryRow(c, getAgeQuery, id)
 
-	var body models.Agejson
-
-	if c.Bind(&body) != nil {
+	var age models.Age
+	err := getAge.Scan(&age.Age, &age.Image)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
+			"error": "no such age category",
 		})
 		return
 	}
+	ageName := c.PostForm("age")
+	image, err := c.FormFile("image")
+	var path string
+	if err != nil {
+		path = age.Image
+	} else {
+		path = "files//ages//" + image.Filename
+		c.SaveUploadedFile(image, path)
 
-	age := body.Age
+	}
 
-	fmt.Println(age)
-	fmt.Println(id)
+	input := models.Age{
+		Age:   ageName,
+		Image: path}
 
-	_, err := initializers.ConnPool.Exec(context.Background(), "update ages set age =$1 WHERE id = $2", age, id)
+	setValues := make([]string, 0)
+	args := make([]interface{}, 0)
+	argId := 1
+
+	if input.Age != "" {
+		setValues = append(setValues, fmt.Sprintf("age = $%d", argId))
+		args = append(args, input.Age)
+		argId++
+	}
+
+	if input.Image != "" {
+		setValues = append(setValues, fmt.Sprintf("image = $%d", argId))
+		args = append(args, input.Image)
+		argId++
+	}
+
+	setQuery := strings.Join(setValues, ", ")
+	query := fmt.Sprintf("UPDATE ages SET %s WHERE id =$%d ",
+		setQuery, argId)
+
+	args = append(args, id)
+
+	_, err = initializers.ConnPool.Exec(context.Background(), query, args...)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			//"error": "Failed to update age category",
-			"err": err.Error(),
+			"error": "Failed to update age category",
+			//"err": err.Error(),
 		})
 		return
 	}

@@ -219,7 +219,17 @@ func UpdateCategories(c *gin.Context) {
 
 	id := c.Param("category_id")
 	var body models.Categoryjson
+	getCategoryQuery := `select category_name from categories where id = $1`
+	getCategory := initializers.ConnPool.QueryRow(c, getCategoryQuery, id)
 
+	var categoryName models.Categoryjson
+	err := getCategory.Scan(&categoryName.Category)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "no such category",
+		})
+		return
+	}
 	if c.Bind(&body) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to read body",
@@ -229,7 +239,7 @@ func UpdateCategories(c *gin.Context) {
 
 	category := body.Category
 
-	_, err := initializers.ConnPool.Exec(context.Background(), "update categories set category_name = $1 WHERE id = $2", category, id)
+	_, err = initializers.ConnPool.Exec(context.Background(), "update categories set category_name = $1 WHERE id = $2", category, id)
 
 	if err != nil {
 		fmt.Println(err)

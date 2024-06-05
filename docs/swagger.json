@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "//ozinshetestapi.mobydev.kz",
+    "host": "ozinshetestapi.mobydev.kz",
     "basePath": "/",
     "paths": {
         "/admin/age": {
@@ -29,13 +29,18 @@
                 "summary": "Create age category",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "Age category",
                         "name": "age",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Agejson"
-                        }
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -245,13 +250,16 @@
                         "required": true
                     },
                     {
+                        "type": "string",
                         "description": "Age category",
                         "name": "age",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Agejson"
-                        }
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -682,13 +690,18 @@
                 "summary": "Create genre",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "Genre",
                         "name": "genre",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Genrejson"
-                        }
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -784,13 +797,16 @@
                         "required": true
                     },
                     {
+                        "type": "string",
                         "description": "Genre",
                         "name": "genre",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Genrejson"
-                        }
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2523,14 +2539,6 @@
         }
     },
     "definitions": {
-        "models.Agejson": {
-            "type": "object",
-            "properties": {
-                "age": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Categoryjson": {
             "type": "object",
             "properties": {
@@ -2549,14 +2557,6 @@
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Genrejson": {
-            "type": "object",
-            "properties": {
-                "genre": {
                     "type": "string"
                 }
             }

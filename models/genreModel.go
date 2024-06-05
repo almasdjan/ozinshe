@@ -2,6 +2,7 @@ package models
 
 type Genre struct {
 	ID        uint
+	Image     string
 	GenreName string
 }
 

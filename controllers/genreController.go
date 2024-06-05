@@ -7,6 +7,7 @@ import (
 	"project1/initializers"
 	"project1/middleware"
 	"project1/models"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +17,8 @@ import (
 // @Tags admin
 // @Accept json
 // @Produce json
-// @Param genre body models.Genrejson true "Genre"
+// @Param genre formData string true "Genre"
+// @Param image formData file true "Image"
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Router /admin/genres [post]
@@ -37,17 +39,25 @@ func CreateGenre(c *gin.Context) {
 		return
 	}
 
-	var body models.Genrejson
-
-	if c.Bind(&body) != nil {
+	genreName := c.PostForm("genre")
+	image, err := c.FormFile("image")
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
+			"error": "Failed to read the image",
 		})
 		return
 	}
 
+	path := "files//genres//" + image.Filename
+	c.SaveUploadedFile(image, path)
+
+	body := models.Genre{
+		GenreName: genreName,
+		Image:     path,
+	}
+
 	var genre models.Genre
-	exist := initializers.DB.Where("name=?", body.Genre).First(&genre)
+	exist := initializers.DB.Where("name=?", body.GenreName).First(&genre)
 
 	if exist.RowsAffected > 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -56,7 +66,7 @@ func CreateGenre(c *gin.Context) {
 		return
 	}
 
-	genre = models.Genre{GenreName: body.Genre}
+	genre = models.Genre{GenreName: body.GenreName, Image: path}
 
 	result := initializers.DB.Create(&genre)
 
@@ -228,7 +238,7 @@ func GetGenres(c *gin.Context) {
 	var genres = []models.Genre{}
 	for rows.Next() {
 		var genre models.Genre
-		err := rows.Scan(&genre.ID, &genre.GenreName)
+		err := rows.Scan(&genre.ID, &genre.GenreName, &genre.Image)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to define genres",
@@ -248,7 +258,8 @@ func GetGenres(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param genre_id path string true "genre id"
-// @Param genre body models.Genrejson true "Genre"
+// @Param genre formData string false "Genre"
+// @Param image formData file false "Image"
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
@@ -269,6 +280,7 @@ func UpdateGenre(c *gin.Context) {
 		})
 		return
 	}
+
 	/*
 		db, error := initializers.ConnectDb()
 		if error != nil {
@@ -279,28 +291,73 @@ func UpdateGenre(c *gin.Context) {
 		}
 	*/
 	id := c.Param("genre_id")
-	var body models.Genrejson
+	getGenreQuery := `select id,genre_name, image from genres where id = $1`
+	getGenre := initializers.ConnPool.QueryRow(c, getGenreQuery, id)
 
-	if c.Bind(&body) != nil {
+	var genre models.Genre
+	err := getGenre.Scan(&genre.ID, &genre.GenreName, &genre.Image)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
+			"error": "no such genre",
 		})
 		return
 	}
+	var emtyGenre models.Genre
+	if genre == emtyGenre {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "no such genre.",
+		})
+		return
+	}
+	genreName := c.PostForm("genre")
+	image, err := c.FormFile("image")
+	var path string
+	if err != nil {
+		path = genre.Image
+	} else {
+		path = "files//genres//" + image.Filename
+		c.SaveUploadedFile(image, path)
 
-	genre := body.Genre
+	}
 
-	_, err := initializers.ConnPool.Exec(context.Background(), "update genres set genre_name = $1 WHERE id = $2", genre, id)
+	input := models.Genre{
+		GenreName: genreName,
+		Image:     path}
+
+	setValues := make([]string, 0)
+	args := make([]interface{}, 0)
+	argId := 1
+
+	if input.GenreName != "" {
+		setValues = append(setValues, fmt.Sprintf("genre_name = $%d", argId))
+		args = append(args, input.GenreName)
+		argId++
+	}
+
+	if input.Image != "" {
+		setValues = append(setValues, fmt.Sprintf("image = $%d", argId))
+		args = append(args, input.Image)
+		argId++
+	}
+
+	setQuery := strings.Join(setValues, ", ")
+	query := fmt.Sprintf("UPDATE genres SET %s WHERE id =$%d ",
+		setQuery, argId)
+
+	args = append(args, id)
+
+	_, err = initializers.ConnPool.Exec(context.Background(), query, args...)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to update genre",
+			"error": "Failed to update the genre",
+			//"err": err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success": "genre was updated",
+		"success": "the genre was updated",
 	})
 
 }

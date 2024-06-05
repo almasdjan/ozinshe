@@ -35,13 +35,18 @@ const docTemplate = `{
                 "summary": "Create age category",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "Age category",
                         "name": "age",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Agejson"
-                        }
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -251,13 +256,16 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
                         "description": "Age category",
                         "name": "age",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Agejson"
-                        }
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -688,13 +696,18 @@ const docTemplate = `{
                 "summary": "Create genre",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "Genre",
                         "name": "genre",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Genrejson"
-                        }
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -790,13 +803,16 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
                         "description": "Genre",
                         "name": "genre",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Genrejson"
-                        }
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -2529,14 +2545,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.Agejson": {
-            "type": "object",
-            "properties": {
-                "age": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Categoryjson": {
             "type": "object",
             "properties": {
@@ -2555,14 +2563,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Genrejson": {
-            "type": "object",
-            "properties": {
-                "genre": {
                     "type": "string"
                 }
             }
@@ -2628,7 +2628,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "//ozinshetestapi.mobydev.kz",
+	Host:             "ozinshetestapi.mobydev.kz",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Ozinshe",

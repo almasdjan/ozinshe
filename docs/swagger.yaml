@@ -1,10 +1,5 @@
 basePath: /
 definitions:
-  models.Agejson:
-    properties:
-      age:
-        type: string
-    type: object
   models.Categoryjson:
     properties:
       category:
@@ -17,11 +12,6 @@ definitions:
       newpassword2:
         type: string
       password:
-        type: string
-    type: object
-  models.Genrejson:
-    properties:
-      genre:
         type: string
     type: object
   models.Login:
@@ -55,7 +45,7 @@ definitions:
       phone_number:
         type: string
     type: object
-host: //ozinshetestapi.mobydev.kz
+host: ozinshetestapi.mobydev.kz
 info:
   contact: {}
   description: API Server for Ozinshe app
@@ -69,11 +59,15 @@ paths:
       description: Create age category
       parameters:
       - description: Age category
-        in: body
+        in: formData
         name: age
         required: true
-        schema:
-          $ref: '#/definitions/models.Agejson'
+        type: string
+      - description: Image
+        in: formData
+        name: image
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -210,11 +204,13 @@ paths:
         required: true
         type: string
       - description: Age category
-        in: body
+        in: formData
         name: age
-        required: true
-        schema:
-          $ref: '#/definitions/models.Agejson'
+        type: string
+      - description: Image
+        in: formData
+        name: image
+        type: file
       produces:
       - application/json
       responses:
@@ -495,11 +491,15 @@ paths:
       - application/json
       parameters:
       - description: Genre
-        in: body
+        in: formData
         name: genre
         required: true
-        schema:
-          $ref: '#/definitions/models.Genrejson'
+        type: string
+      - description: Image
+        in: formData
+        name: image
+        required: true
+        type: file
       produces:
       - application/json
       responses:
@@ -561,11 +561,13 @@ paths:
         required: true
         type: string
       - description: Genre
-        in: body
+        in: formData
         name: genre
-        required: true
-        schema:
-          $ref: '#/definitions/models.Genrejson'
+        type: string
+      - description: Image
+        in: formData
+        name: image
+        type: file
       produces:
       - application/json
       responses:

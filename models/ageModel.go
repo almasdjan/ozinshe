@@ -1,8 +1,9 @@
 package models
 
 type Age struct {
-	ID  uint
-	Age string
+	ID    uint
+	Image string
+	Age   string
 }
 
 type Material_age struct {
@@ -11,5 +12,5 @@ type Material_age struct {
 }
 
 type Agejson struct {
-	Age string 
+	Age string
 }

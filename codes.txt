@@ -102,3 +102,14 @@ PRIMARY KEY (material_id, category_id),
 FOREIGN KEY (material_id) REFERENCES materials (id),
 FOREIGN KEY (age_id) REFERENCES categories (id)
 );
+
+
+
+
+
+alter table materials
+add m_type varchar(55) not null default 'Фильмы';
+
+
+alter table ages
+add image varchar(255) not null default 'https';
