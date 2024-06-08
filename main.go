@@ -78,6 +78,7 @@ func main() {
 	admin.DELETE("/recommends/:material_id", controllers.DeleteFromRecommended)
 
 	admin.POST("/material", controllers.CreateMaterial)
+	admin.GET("material", controllers.GetAll)
 	admin.DELETE("/material/:material_id", controllers.DeleteMaterial)
 	admin.PATCH("/material/:material_id", controllers.UpdateMaterial)
 	admin.POST("/materialimage/:material_id", controllers.AddImage)
@@ -86,9 +87,6 @@ func main() {
 	admin.GET("/ages", controllers.GetAges)
 	admin.GET("/categories", controllers.GetCategories)
 	admin.GET("/genres", controllers.GetGenres)
-
-	admin.GET("material", controllers.GetAllMovies)
-	admin.GET("materialmap", controllers.GetAll)
 
 	main := r.Group("/main")
 

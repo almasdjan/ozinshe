@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Material struct {
 	gorm.Model
@@ -45,6 +49,8 @@ type Material_history struct {
 type Material_get struct {
 	Material_id uint
 	Title       string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 	Poster      string
 	Category    string
 	Viewed      int
@@ -61,6 +67,8 @@ type Material_search struct {
 type Materials_get struct {
 	Material_id uint
 	Title       string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 	Poster      string
 	Category    []string
 	Viewed      int

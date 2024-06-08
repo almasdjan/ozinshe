@@ -1003,54 +1003,6 @@ paths:
       summary: add image to material
       tags:
       - admin
-  /admin/materialmap:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - default: Популярные
-        description: Sort order
-        in: query
-        name: sort
-        type: string
-      - default: Все категории
-        description: Category
-        in: query
-        name: category
-        type: string
-      - default: Фильмы и сериалы
-        description: Type
-        in: query
-        name: type
-        type: string
-      - default: Выберите год
-        description: Year
-        in: query
-        name: year
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get All movies map
-      tags:
-      - admin
   /admin/recommends/{material_id}:
     delete:
       consumes:

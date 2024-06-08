@@ -970,6 +970,7 @@ func Search(c *gin.Context) {
 		err := rows.Scan(&material.Material_id, &material.Poster, &material.Title, &material.Category, &material.Publish_year)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
+
 				"error": "Failed to define materilas",
 			})
 			return
@@ -982,30 +983,13 @@ func Search(c *gin.Context) {
 
 }
 
-// @Summary Get All movies
-// @Security BearerAuth
-// @Tags admin
-// @Accept json
-// @Produce json
-// @Param sort query string false "Sort order" default(Популярные)
-// @Param category query string false "Category" default(Все категории)
-// @Param type query string false "Type" default(Фильмы и сериалы)
-// @Param year query string false "Year" default(Выберите год)
-// @Success 200 {object} map[string]any
-// @Failure 400 {object} map[string]any
-// @Failure 500 {object} map[string]any
-// @Router /admin/material [get]
+/*
 func GetAllMovies(c *gin.Context) {
 	middleware.RequireAuth(c)
 	if c.IsAborted() {
 		return
 	}
-	/*
-		userid, _ := c.Get("user")
 
-		var user models.User
-		initializers.DB.First(&user, userid)
-	*/
 
 	sort := c.DefaultQuery("sort", "Популярные")
 	category := c.DefaultQuery("category", "Все категории")
@@ -1020,7 +1004,7 @@ func GetAllMovies(c *gin.Context) {
 			join material_categories mc on m.id = mc.material_id
 			join categories c on mc.category_id = c.id
 		)as foo
-	)as foor 
+	)as foor
 	WHERE 1=1
 	`
 
@@ -1031,7 +1015,7 @@ func GetAllMovies(c *gin.Context) {
 			join material_categories mc on m.id = mc.material_id
 			join categories c on mc.category_id = c.id
 		)as foo
-	)as foor 
+	)as foor
 	WHERE 1=1
 	`
 
@@ -1135,8 +1119,9 @@ func GetAllMovies(c *gin.Context) {
 	})
 
 }
+*/
 
-// @Summary Get All movies map
+// @Summary Get All movies
 // @Security BearerAuth
 // @Tags admin
 // @Accept json
@@ -1148,7 +1133,7 @@ func GetAllMovies(c *gin.Context) {
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
-// @Router /admin/materialmap [get]
+// @Router /admin/material [get]
 func GetAll(c *gin.Context) {
 	middleware.RequireAuth(c)
 	if c.IsAborted() {
@@ -1168,7 +1153,7 @@ func GetAll(c *gin.Context) {
 
 	// Construct the base query
 	query := `
-	select m.id,m.poster, m.title,  m.viewed,c.category_name from materials m 
+	select m.id,m.poster, m.title, m.created_at,m.updated_at,c.category_name from materials m 
 	join material_categories mc on m.id=mc.material_id
 	join categories c on c.id = mc.category_id 
 	WHERE 1=1
@@ -1180,7 +1165,6 @@ func GetAll(c *gin.Context) {
 			join material_categories mc on m.id=mc.material_id
 			join categories c on c.id = mc.category_id 
 			WHERE 1=1
-		)as foo
 	`
 
 	// Add filters to the query
@@ -1188,37 +1172,31 @@ func GetAll(c *gin.Context) {
 	paramIndex := 1
 
 	if category != "Все категории" {
-		query += fmt.Sprintf(" AND category_name = $%d", paramIndex)
-		countQuery += fmt.Sprintf(" AND category_name = $%d", paramIndex)
+		query += fmt.Sprintf(" AND c.category_name = $%d", paramIndex)
+		countQuery += fmt.Sprintf(" AND c.category_name = $%d", paramIndex)
 		params = append(params, category)
 		paramIndex++
 	}
 	if materialType != "Фильмы и сериалы" {
-		query += fmt.Sprintf(" AND m_type = $%d", paramIndex)
-		countQuery += fmt.Sprintf(" AND m_type = $%d", paramIndex)
+		query += fmt.Sprintf(" AND m.m_type = $%d", paramIndex)
+		countQuery += fmt.Sprintf(" AND m.m_type = $%d", paramIndex)
 		params = append(params, materialType)
 		paramIndex++
 	}
 	if year != "Выберите год" {
-		query += fmt.Sprintf(" AND publish_year = $%d", paramIndex)
-		countQuery += fmt.Sprintf(" AND m_type = $%d", paramIndex)
+		query += fmt.Sprintf(" AND m.publish_year = $%d", paramIndex)
+		countQuery += fmt.Sprintf(" AND m.publish_year = $%d", paramIndex)
 		params = append(params, year)
 		paramIndex++
 	}
-	if sortt != "Популярные" {
-		if sortt == "По дате регистрации" {
-			query += " ORDER BY created_at DESC"
-		} else if sortt == "По имени" {
-			query += " ORDER BY title"
-		}
-	} else {
-		query += " ORDER BY viewed DESC"
-	}
+
+	countQuery += " )as foo"
 	fmt.Print(query)
 
 	// Add sorting to the query (you might need to adjust this depending on your sort logic)
 
 	rows, err := initializers.ConnPool.Query(context.Background(), query, params...)
+	fmt.Print(params...)
 
 	if err != nil {
 		fmt.Println(err)
@@ -1232,9 +1210,11 @@ func GetAll(c *gin.Context) {
 	var materials = []models.Material_get{}
 	for rows.Next() {
 		var material models.Material_get
-		err := rows.Scan(&material.Material_id, &material.Poster, &material.Title, &material.Viewed, &material.Category)
+		err := rows.Scan(&material.Material_id, &material.Poster, &material.Title, &material.CreatedAt, &material.UpdatedAt, &material.Category)
 		if err != nil {
+			fmt.Print(err.Error())
 			c.JSON(http.StatusBadRequest, gin.H{
+
 				"error": "Failed to define materilas",
 			})
 			return
@@ -1249,6 +1229,8 @@ func GetAll(c *gin.Context) {
 			moviesMap[movie.Material_id] = &models.Materials_get{
 				Material_id: movie.Material_id,
 				Title:       movie.Title,
+				CreatedAt:   movie.CreatedAt,
+				UpdatedAt:   movie.UpdatedAt,
 				Poster:      movie.Poster,
 			}
 
@@ -1267,6 +1249,7 @@ func GetAll(c *gin.Context) {
 	var seriesNumber []series
 	result := make([]models.Materials_get, 0, len(moviesMap))
 	if sortt == "Популярные" {
+		fmt.Print("Популярные")
 		query := `
 		WITH MaxViewed AS (
 			SELECT 
@@ -1323,6 +1306,90 @@ func GetAll(c *gin.Context) {
 			return result[i].Viewed > result[j].Viewed
 		})
 
+	}
+
+	if sortt == "По дате регистрации" || sortt == "По дате обновления" || sortt == "По имени" {
+		fmt.Print("Не популярные")
+		query := `
+		WITH MaxSeries AS(
+			WITH MaxSezon AS (
+						SELECT 
+							material_id, MAX(sezon) AS sezon
+						FROM videos 
+						GROUP BY material_id
+					)
+					SELECT --distinct on (m.id)
+						m.id, v.sezon, max(v.series) series
+					FROM materials m
+					JOIN MaxSezon ms ON m.id = ms.material_id
+					JOIN videos v ON m.id = v.material_id AND ms.sezon = v.sezon
+					group by m.id, v.sezon
+			)
+			Select v.material_id, v.sezon, v.series, v.viewed
+			from MaxSeries mss join videos v on mss.id = v.material_id where mss.sezon = v.sezon and mss.series = v.series		
+		;	
+		`
+
+		rows, err := initializers.ConnPool.Query(context.Background(), query)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to get series",
+			})
+			return
+		}
+		for rows.Next() {
+			var seria series
+			err = rows.Scan(&seria.Material_id, &seria.Sezon, &seria.Series, &seria.Viewed)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": "Failed to get series",
+				})
+				return
+			}
+			seriesNumber = append(seriesNumber, seria)
+
+		}
+		fmt.Print(seriesNumber)
+		for _, movie := range seriesNumber {
+			if _, found := moviesMap[movie.Material_id]; found {
+				/*
+					moviesMap[movie.Material_id] = &models.Materials_get{
+						Sezon:  movie.Sezon,
+						Series: movie.Series,
+					}*/
+
+				moviesMap[movie.Material_id].Sezon = movie.Sezon
+				moviesMap[movie.Material_id].Series = movie.Series
+				moviesMap[movie.Material_id].Viewed = movie.Viewed
+
+			}
+		}
+
+		for _, v := range moviesMap {
+			result = append(result, *v)
+		}
+
+	}
+
+	if sortt == "По дате регистрации" {
+		fmt.Print("По дате регистрации")
+		sort.Slice(result, func(i, j int) bool {
+			return result[i].CreatedAt.After(result[j].CreatedAt)
+		})
+	}
+
+	if sortt == "По дате обновления" {
+		fmt.Print("По дате обновления")
+		sort.Slice(result, func(i, j int) bool {
+			return result[i].UpdatedAt.After(result[j].UpdatedAt)
+		})
+	}
+
+	if sortt == "По имени" {
+		fmt.Print("По имени")
+		sort.Slice(result, func(i, j int) bool {
+			return result[i].Title < result[j].Title
+		})
 	}
 
 	countRows := initializers.ConnPool.QueryRow(context.Background(), countQuery, params...)
