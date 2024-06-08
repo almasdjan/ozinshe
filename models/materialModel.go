@@ -57,3 +57,13 @@ type Material_search struct {
 	Category     string
 	Publish_year int
 }
+
+type Materials_get struct {
+	Material_id uint
+	Title       string
+	Poster      string
+	Category    []string
+	Viewed      int
+	Sezon       int
+	Series      int
+}

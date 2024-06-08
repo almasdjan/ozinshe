@@ -199,13 +199,13 @@ func DeleteGenre(c *gin.Context) {
 
 // @Summary get all genres
 // @Security BearerAuth
-// @Tags main
+// @Tags admin
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]any
+// @Success 200 {object} []models.Genre
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
-// @Router /main/genres [get]
+// @Router /admin/genres [get]
 func GetGenres(c *gin.Context) {
 	middleware.RequireAuth(c)
 	if c.IsAborted() {
@@ -247,9 +247,8 @@ func GetGenres(c *gin.Context) {
 		}
 		genres = append(genres, genre)
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"genres": genres,
-	})
+	c.JSON(http.StatusOK, genres)
+
 }
 
 // @Summary edit genre

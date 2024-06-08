@@ -7,6 +7,7 @@ import (
 	"project1/initializers"
 	"project1/middleware"
 	"project1/models"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -1129,6 +1130,237 @@ func GetAllMovies(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"movies": materials,
+		"count":  count,
+		"years":  years,
+	})
+
+}
+
+// @Summary Get All movies map
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Param sort query string false "Sort order" default(Популярные)
+// @Param category query string false "Category" default(Все категории)
+// @Param type query string false "Type" default(Фильмы и сериалы)
+// @Param year query string false "Year" default(Выберите год)
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/materialmap [get]
+func GetAll(c *gin.Context) {
+	middleware.RequireAuth(c)
+	if c.IsAborted() {
+		return
+	}
+	/*
+		userid, _ := c.Get("user")
+
+		var user models.User
+		initializers.DB.First(&user, userid)
+	*/
+
+	sortt := c.DefaultQuery("sort", "Популярные")
+	category := c.DefaultQuery("category", "Все категории")
+	materialType := c.DefaultQuery("type", "Фильмы и сериалы")
+	year := c.DefaultQuery("year", "Выберите год")
+
+	// Construct the base query
+	query := `
+	select m.id,m.poster, m.title,  m.viewed,c.category_name from materials m 
+	join material_categories mc on m.id=mc.material_id
+	join categories c on c.id = mc.category_id 
+	WHERE 1=1
+	`
+
+	countQuery := `
+	select count(*) from (
+		select distinct on (m.id) * from materials m 
+			join material_categories mc on m.id=mc.material_id
+			join categories c on c.id = mc.category_id 
+			WHERE 1=1
+		)as foo
+	`
+
+	// Add filters to the query
+	var params []interface{}
+	paramIndex := 1
+
+	if category != "Все категории" {
+		query += fmt.Sprintf(" AND category_name = $%d", paramIndex)
+		countQuery += fmt.Sprintf(" AND category_name = $%d", paramIndex)
+		params = append(params, category)
+		paramIndex++
+	}
+	if materialType != "Фильмы и сериалы" {
+		query += fmt.Sprintf(" AND m_type = $%d", paramIndex)
+		countQuery += fmt.Sprintf(" AND m_type = $%d", paramIndex)
+		params = append(params, materialType)
+		paramIndex++
+	}
+	if year != "Выберите год" {
+		query += fmt.Sprintf(" AND publish_year = $%d", paramIndex)
+		countQuery += fmt.Sprintf(" AND m_type = $%d", paramIndex)
+		params = append(params, year)
+		paramIndex++
+	}
+	if sortt != "Популярные" {
+		if sortt == "По дате регистрации" {
+			query += " ORDER BY created_at DESC"
+		} else if sortt == "По имени" {
+			query += " ORDER BY title"
+		}
+	} else {
+		query += " ORDER BY viewed DESC"
+	}
+	fmt.Print(query)
+
+	// Add sorting to the query (you might need to adjust this depending on your sort logic)
+
+	rows, err := initializers.ConnPool.Query(context.Background(), query, params...)
+
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+
+			"error": "Failed to get materials info",
+		})
+		return
+	}
+
+	var materials = []models.Material_get{}
+	for rows.Next() {
+		var material models.Material_get
+		err := rows.Scan(&material.Material_id, &material.Poster, &material.Title, &material.Viewed, &material.Category)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to define materilas",
+			})
+			return
+		}
+		materials = append(materials, material)
+	}
+
+	moviesMap := make(map[uint]*models.Materials_get)
+	for _, movie := range materials {
+		if _, found := moviesMap[movie.Material_id]; !found {
+
+			moviesMap[movie.Material_id] = &models.Materials_get{
+				Material_id: movie.Material_id,
+				Title:       movie.Title,
+				Poster:      movie.Poster,
+			}
+
+		}
+
+		category := movie.Category
+		moviesMap[movie.Material_id].Category = append(moviesMap[movie.Material_id].Category, category)
+
+	}
+	type series struct {
+		Material_id uint
+		Viewed      int
+		Sezon       int
+		Series      int
+	}
+	var seriesNumber []series
+	result := make([]models.Materials_get, 0, len(moviesMap))
+	if sortt == "Популярные" {
+		query := `
+		WITH MaxViewed AS (
+			SELECT 
+				material_id, MAX(viewed) AS max_viewed 
+			FROM videos 
+			GROUP BY material_id
+		)
+		SELECT distinct on (m.id)
+			m.id, mv.max_viewed AS viewed, v.sezon, v.series 
+		FROM materials m
+		JOIN MaxViewed mv ON m.id = mv.material_id
+		JOIN videos v ON m.id = v.material_id AND mv.max_viewed = v.viewed
+		;	
+		`
+
+		rows, err := initializers.ConnPool.Query(context.Background(), query)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Failed to get series",
+			})
+			return
+		}
+		for rows.Next() {
+			var seria series
+			err = rows.Scan(&seria.Material_id, &seria.Viewed, &seria.Sezon, &seria.Series)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": "Failed to get series",
+				})
+				return
+			}
+			seriesNumber = append(seriesNumber, seria)
+
+		}
+		fmt.Print(seriesNumber)
+		for _, movie := range seriesNumber {
+			if _, found := moviesMap[movie.Material_id]; found {
+				/*
+					moviesMap[movie.Material_id] = &models.Materials_get{
+						Sezon:  movie.Sezon,
+						Series: movie.Series,
+					}*/
+
+				moviesMap[movie.Material_id].Sezon = movie.Sezon
+				moviesMap[movie.Material_id].Series = movie.Series
+				moviesMap[movie.Material_id].Viewed = movie.Viewed
+
+			}
+		}
+		for _, v := range moviesMap {
+			result = append(result, *v)
+		}
+		sort.Slice(result, func(i, j int) bool {
+			return result[i].Viewed > result[j].Viewed
+		})
+
+	}
+
+	countRows := initializers.ConnPool.QueryRow(context.Background(), countQuery, params...)
+
+	var count int
+	err = countRows.Scan(&count)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to count movies",
+		})
+		return
+	}
+
+	yearsQuery := `select distinct publish_year from materials order by publish_year desc`
+
+	yearRows, err := initializers.ConnPool.Query(context.Background(), yearsQuery)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to get years",
+		})
+		return
+	}
+
+	var years = []int{}
+	for yearRows.Next() {
+		var year int
+		err := yearRows.Scan(&year)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to define years",
+			})
+			return
+		}
+		years = append(years, year)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"movies": result,
 		"count":  count,
 		"years":  years,
 	})

@@ -22,7 +22,7 @@ import (
 // @Param image formData file true "Image"
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
-// @Router /admin/age [post]
+// @Router /admin/ages [post]
 func CreateAge(c *gin.Context) {
 	middleware.RequireAuth(c)
 	if c.IsAborted() {
@@ -199,13 +199,13 @@ func DeleteAge(c *gin.Context) {
 
 // @Summary get all age categories
 // @Security BearerAuth
-// @Tags main
+// @Tags admin
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]any
+// @Success 200 {object} []models.Age
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
-// @Router /main/ages [get]
+// @Router /admin/ages [get]
 func GetAges(c *gin.Context) {
 	middleware.RequireAuth(c)
 	if c.IsAborted() {
@@ -247,9 +247,7 @@ func GetAges(c *gin.Context) {
 		}
 		ages = append(ages, age)
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"ages": ages,
-	})
+	c.JSON(http.StatusOK, ages)
 }
 
 // @Summary edit age category

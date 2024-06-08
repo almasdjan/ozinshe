@@ -128,13 +128,13 @@ func DeleteCategory(c *gin.Context) {
 
 // @Summary get all categories
 // @Security BearerAuth
-// @Tags main
+// @Tags admin
 // @Accept json
 // @Produce json
-// @Success 200 {object} map[string]any
+// @Success 200 {object} []models.Category
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
-// @Router /main/categories [get]
+// @Router /admin/categories [get]
 func GetCategories(c *gin.Context) {
 	middleware.RequireAuth(c)
 	if c.IsAborted() {
@@ -176,9 +176,7 @@ func GetCategories(c *gin.Context) {
 		}
 		categories = append(categories, category)
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"categories": categories,
-	})
+	c.JSON(http.StatusOK, categories)
 }
 
 // @Summary edit category

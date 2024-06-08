@@ -25,6 +25,7 @@ func init() {
 // @description API Server for Ozinshe app
 
 // @host ozinshetestapi.mobydev.kz
+
 //ozinshetestapi.mobydev.kz
 // @BasePath /
 
@@ -50,7 +51,7 @@ func main() {
 
 	admin := r.Group("/admin")
 
-	admin.POST("/age", controllers.CreateAge)
+	admin.POST("/ages", controllers.CreateAge)
 	admin.DELETE("/ages/:age_id", controllers.DeleteAge)
 	admin.PATCH("/ages/:age_id", controllers.UpdateAge)
 
@@ -82,12 +83,14 @@ func main() {
 	admin.POST("/materialimage/:material_id", controllers.AddImage)
 	admin.DELETE("materialimage", controllers.DeleteImage)
 
+	admin.GET("/ages", controllers.GetAges)
+	admin.GET("/categories", controllers.GetCategories)
+	admin.GET("/genres", controllers.GetGenres)
+
 	admin.GET("material", controllers.GetAllMovies)
+	admin.GET("materialmap", controllers.GetAll)
 
 	main := r.Group("/main")
-	main.GET("/ages", controllers.GetAges)
-	main.GET("/categories", controllers.GetCategories)
-	main.GET("/genres", controllers.GetGenres)
 
 	main.GET("/", controllers.GetMainList)
 	main.GET("/material/:material_id", controllers.GetMaterialById)

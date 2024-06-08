@@ -110,6 +110,35 @@ FOREIGN KEY (age_id) REFERENCES categories (id)
 alter table materials
 add m_type varchar(55) not null default 'Фильмы';
 
-
 alter table ages
 add image varchar(255) not null default 'https';
+
+alter table genres
+add image varchar(255) not null default 'https';
+
+alter table videos 
+add viewed int default 0
+
+ALTER TABLE videos ALTER COLUMN sezon SET DEFAULT 0;
+ALTER TABLE videos ALTER COLUMN series SET DEFAULT 0;
+ALTER TABLE videos ADD CONSTRAINT unique_episodes UNIQUE (sezon,series, material_id);
+
+
+
+WITH MaxSeries AS(
+	WITH MaxSezon AS (
+				SELECT 
+					material_id, MAX(sezon) AS sezon
+				FROM videos 
+				GROUP BY material_id
+			)
+			SELECT --distinct on (m.id)
+				m.id, v.sezon, max(v.series) series
+			FROM materials m
+			JOIN MaxSezon ms ON m.id = ms.material_id
+			JOIN videos v ON m.id = v.material_id AND ms.sezon = v.sezon
+			group by m.id, v.sezon
+	)
+	Select v.material_id, v.sezon, v.series, v.viewed
+	from MaxSeries mss join videos v on mss.id = v.material_id where mss.sezon = v.sezon and mss.series = v.series
+

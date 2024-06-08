@@ -1,5 +1,21 @@
 basePath: /
 definitions:
+  models.Age:
+    properties:
+      age:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+    type: object
+  models.Category:
+    properties:
+      categoryName:
+        type: string
+      id:
+        type: integer
+    type: object
   models.Categoryjson:
     properties:
       category:
@@ -12,6 +28,15 @@ definitions:
       newpassword2:
         type: string
       password:
+        type: string
+    type: object
+  models.Genre:
+    properties:
+      genreName:
+        type: string
+      id:
+        type: integer
+      image:
         type: string
     type: object
   models.Login:
@@ -52,40 +77,6 @@ info:
   title: Ozinshe
   version: "1.0"
 paths:
-  /admin/age:
-    post:
-      consumes:
-      - application/json
-      description: Create age category
-      parameters:
-      - description: Age category
-        in: formData
-        name: age
-        required: true
-        type: string
-      - description: Image
-        in: formData
-        name: image
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Create age category
-      tags:
-      - admin
   /admin/agematerial/{material_id}/{age_id}:
     delete:
       consumes:
@@ -159,6 +150,67 @@ paths:
       security:
       - BearerAuth: []
       summary: add age category to material
+      tags:
+      - admin
+  /admin/ages:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Age'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: get all age categories
+      tags:
+      - admin
+    post:
+      consumes:
+      - application/json
+      description: Create age category
+      parameters:
+      - description: Age category
+        in: formData
+        name: age
+        required: true
+        type: string
+      - description: Image
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create age category
       tags:
       - admin
   /admin/ages/{age_id}:
@@ -235,6 +287,33 @@ paths:
       tags:
       - admin
   /admin/categories:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Category'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: get all categories
+      tags:
+      - admin
     post:
       consumes:
       - application/json
@@ -486,6 +565,33 @@ paths:
       tags:
       - admin
   /admin/genres:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Genre'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: get all genres
+      tags:
+      - admin
     post:
       consumes:
       - application/json
@@ -897,6 +1003,54 @@ paths:
       summary: add image to material
       tags:
       - admin
+  /admin/materialmap:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - default: Популярные
+        description: Sort order
+        in: query
+        name: sort
+        type: string
+      - default: Все категории
+        description: Category
+        in: query
+        name: category
+        type: string
+      - default: Фильмы и сериалы
+        description: Type
+        in: query
+        name: type
+        type: string
+      - default: Выберите год
+        description: Year
+        in: query
+        name: year
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get All movies map
+      tags:
+      - admin
   /admin/recommends/{material_id}:
     delete:
       consumes:
@@ -1206,33 +1360,6 @@ paths:
       summary: main page
       tags:
       - main
-  /main/ages:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: get all age categories
-      tags:
-      - main
   /main/ages/{age_id}:
     get:
       consumes:
@@ -1264,33 +1391,6 @@ paths:
       security:
       - BearerAuth: []
       summary: get movies by age category
-      tags:
-      - main
-  /main/categories:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: get all categories
       tags:
       - main
   /main/favourites:
@@ -1384,33 +1484,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Get random movies
-      tags:
-      - main
-  /main/genres:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: get all genres
       tags:
       - main
   /main/genres/{genre_id}:
