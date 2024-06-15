@@ -711,9 +711,9 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Sort order
+      - default: Популярные
+        description: Sort order
         enum:
-        - Популярные
         - По дате регистрации
         - По дате обновления
         in: query
@@ -724,9 +724,9 @@ paths:
         in: query
         name: category
         type: string
-      - description: Type
+      - default: Фильмы и сериалы
+        description: Type
         enum:
-        - Фильмы и сериалы
         - Фильмы
         - Сериалы
         in: query
@@ -849,6 +849,38 @@ paths:
       - admin
   /admin/material/{material_id}:
     delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: material_id
+        in: path
+        name: material_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Material by id
+      tags:
+      - admin
+    get:
       consumes:
       - application/json
       parameters:
@@ -1538,39 +1570,6 @@ paths:
       security:
       - BearerAuth: []
       summary: watch history
-      tags:
-      - main
-  /main/material/{material_id}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: material_id
-        in: path
-        name: material_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Material by id
       tags:
       - main
   /main/recommends:

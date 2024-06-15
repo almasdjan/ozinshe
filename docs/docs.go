@@ -986,11 +986,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "enum": [
-                            "Популярные",
                             "По дате регистрации",
                             "По дате обновления"
                         ],
                         "type": "string",
+                        "default": "Популярные",
                         "description": "Sort order",
                         "name": "sort",
                         "in": "query"
@@ -1004,11 +1004,11 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "Фильмы и сериалы",
                             "Фильмы",
                             "Сериалы"
                         ],
                         "type": "string",
+                        "default": "Фильмы и сериалы",
                         "description": "Type",
                         "name": "type",
                         "in": "query"
@@ -1236,6 +1236,55 @@ const docTemplate = `{
             }
         },
         "/admin/material/{material_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "Material by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "material_id",
+                        "name": "material_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -2216,57 +2265,6 @@ const docTemplate = `{
                     "main"
                 ],
                 "summary": "watch history",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/main/material/{material_id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "main"
-                ],
-                "summary": "Material by id",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "material_id",
-                        "name": "material_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",

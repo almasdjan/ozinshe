@@ -79,6 +79,7 @@ func main() {
 
 	admin.POST("/material", controllers.CreateMaterial)
 	admin.POST("/material/screens/:id", controllers.AddScreens)
+	admin.GET("/material/:material_id", controllers.GetMaterialById)
 	admin.GET("material", controllers.GetAll)
 	admin.DELETE("/material/:material_id", controllers.DeleteMaterial)
 	admin.PATCH("/material/:material_id", controllers.UpdateMaterial)
