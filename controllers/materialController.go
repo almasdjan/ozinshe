@@ -1282,13 +1282,13 @@ func GetAll(c *gin.Context) {
 	}
 	if materialType != "Фильмы и сериалы" {
 		query += fmt.Sprintf(" AND m.m_type = $%d", paramIndex)
-		countQuery += fmt.Sprintf(" AND m.m_type = $%d", paramIndex)
+		countQuery += fmt.Sprintf(` AND m.m_type = '$%d'`, paramIndex)
 		params = append(params, materialType)
 		paramIndex++
 	}
 	if year != "Выберите год" {
 		query += fmt.Sprintf(" AND m.publish_year = $%d", paramIndex)
-		countQuery += fmt.Sprintf(" AND m.publish_year = $%d", paramIndex)
+		countQuery += fmt.Sprintf(` AND m.publish_year = '$%d'`, paramIndex)
 		params = append(params, year)
 		paramIndex++
 	}

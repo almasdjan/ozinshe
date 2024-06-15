@@ -24,7 +24,7 @@ func init() {
 // @version 1.0
 // @description API Server for Ozinshe app
 
-// @host localhost:8080
+// @host ozinshetestapi.mobydev.kz
 
 //ozinshetestapi.mobydev.kz
 // @BasePath /
