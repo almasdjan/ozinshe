@@ -17,10 +17,7 @@ import (
 // @Summary Create material
 // @Security BearerAuth
 // @Tags admin
-// @Accept json
-// @Produce json
 // @Param title formData string true "title"
-// @Param posterr formData file true "poster"
 // @Param description formData string true "description"
 // @Param publish_year formData string true "publish year"
 // @Param director formData string true "director"
@@ -29,7 +26,8 @@ import (
 // @Param age_categories formData []string false "ages"
 // @Param genres formData []string false "genres"
 // @Param duration formData string true "duration"
-// @Param image_srcs[] formData []file true "images"
+// @Param keywords formData string true "keywords"
+// @Param type formData string true "type" Enums(Фильмы, Сериалы)
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
@@ -52,21 +50,23 @@ func CreateMaterial(c *gin.Context) {
 	}
 
 	title := c.PostForm("title")
-	posterr, err := c.FormFile("posterr")
-	if err != nil {
+
+	description := c.PostForm("description")
+	publish_year := c.PostForm("publish_year")
+	if publish_year == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read poster",
+			"error": "publish year is required",
 		})
 		return
 	}
-	description := c.PostForm("description")
-	publish_year := c.PostForm("publish_year")
 	director := c.PostForm("director")
 	producer := c.PostForm("producer")
 	categories := c.PostFormArray("categories")
 	age := c.PostFormArray("age_categories")
 	genre := c.PostFormArray("genres")
 	duration := c.PostForm("duration")
+	keywords := c.PostForm("keywords")
+	m_type := c.PostForm("type")
 
 	var material models.Material
 	exist := initializers.DB.Where("title=?", title).First(&material)
@@ -80,6 +80,7 @@ func CreateMaterial(c *gin.Context) {
 
 	publish_yearr, err := strconv.Atoi(publish_year)
 	if err != nil {
+		fmt.Print(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "error while getting publish year",
 		})
@@ -87,17 +88,16 @@ func CreateMaterial(c *gin.Context) {
 	}
 
 	//save poster image
-	path := "files//posters//" + posterr.Filename
-	c.SaveUploadedFile(posterr, path)
 
 	material = models.Material{
 		Title:        title,
-		Poster:       posterr.Filename,
 		Description:  description,
 		Publish_year: publish_yearr,
 		Director:     director,
 		Producer:     producer,
-		Duration:     duration}
+		Duration:     duration,
+		Keywords:     keywords,
+		M_type:       m_type}
 
 	result := initializers.DB.Create(&material)
 
@@ -239,7 +239,70 @@ func CreateMaterial(c *gin.Context) {
 
 	}
 
-	//adding material_id, image_src in image_srcs
+	c.JSON(http.StatusOK, gin.H{
+		"Action": "The material was succfully created",
+	})
+
+}
+
+// @Summary add poster and screenshots
+// @Security BearerAuth
+// @Tags admin
+// @Param id path string true "material id"
+// @Param posterr formData file true "poster"
+// @Param image_srcs[] formData []file true "images"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/material/screens/{id} [post]
+func AddScreens(c *gin.Context) {
+	middleware.RequireAuth(c)
+	if c.IsAborted() {
+		return
+	}
+	userid, _ := c.Get("user")
+	var user models.User
+
+	initializers.DB.First(&user, userid)
+
+	if !user.Isadmin {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "This account is not admin",
+		})
+		return
+	}
+
+	material_id := c.Param("id")
+
+	id, err := strconv.Atoi(material_id)
+	if err != nil {
+		fmt.Print(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read id",
+		})
+		return
+	}
+
+	posterr, err := c.FormFile("posterr")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read poster",
+		})
+		return
+	}
+
+	//save poster image
+	path := "files//posters//" + posterr.Filename
+	c.SaveUploadedFile(posterr, path)
+
+	_, err = initializers.ConnPool.Exec(context.Background(), "update materials set poster = $1 WHERE id = $2", path, material_id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to add poster",
+		})
+		return
+	}
+
 	image_srcs, _ := c.MultipartForm()
 	files := image_srcs.File["image_srcs[]"]
 	fmt.Println(files)
@@ -251,7 +314,7 @@ func CreateMaterial(c *gin.Context) {
 
 		//adding filename in database
 		image_src := models.Image_src{
-			Material_id: material.ID,
+			Material_id: uint(id),
 			Image_src:   file.Filename}
 
 		result1 := initializers.DB.Create(&image_src)
@@ -263,10 +326,10 @@ func CreateMaterial(c *gin.Context) {
 			return
 
 		}
-	}
 
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"Action": "The material was succfully created",
+		"Action": "The images were succfully added",
 	})
 
 }
@@ -301,7 +364,7 @@ func GetMaterialById(c *gin.Context) {
 
 	material_id := c.Param("material_id")
 
-	movie := initializers.ConnPool.QueryRow(context.Background(), "select poster, title, publish_year,  duration, description, director, producer, viewed from materials where id = $1	", material_id)
+	movie := initializers.ConnPool.QueryRow(context.Background(), "select id, poster, title, publish_year,  duration, description, director, producer from materials where id = $1	", material_id)
 	if movie == nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to get materials info",
@@ -310,7 +373,7 @@ func GetMaterialById(c *gin.Context) {
 	}
 	var movieInfo models.Movie
 
-	err := movie.Scan(&movieInfo.Poster, &movieInfo.Title, &movieInfo.Publish_year, &movieInfo.Duration, &movieInfo.Description, &movieInfo.Director, &movieInfo.Producer, &movieInfo.Viewed)
+	err := movie.Scan(&movieInfo.Id, &movieInfo.Poster, &movieInfo.Title, &movieInfo.Publish_year, &movieInfo.Duration, &movieInfo.Description, &movieInfo.Director, &movieInfo.Producer)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -328,7 +391,7 @@ func GetMaterialById(c *gin.Context) {
 		return
 	}
 
-	var categories []models.Category
+	var categories = []models.Category{}
 	for categoriesrows.Next() {
 		var category models.Category
 		err := categoriesrows.Scan(&category.ID, &category.CategoryName)
@@ -351,7 +414,7 @@ func GetMaterialById(c *gin.Context) {
 		return
 	}
 
-	var ages []models.Age
+	var ages = []models.Age{}
 	for agesrows.Next() {
 		var age models.Age
 		err := agesrows.Scan(&age.ID, &age.Age)
@@ -373,7 +436,7 @@ func GetMaterialById(c *gin.Context) {
 		return
 	}
 
-	var genres []models.Genre
+	var genres = []models.Genre{}
 	for genrerows.Next() {
 		var genre models.Genre
 		err := genrerows.Scan(&genre.ID, &genre.GenreName)
@@ -387,7 +450,7 @@ func GetMaterialById(c *gin.Context) {
 
 	}
 
-	imagesrows, err := initializers.ConnPool.Query(context.Background(), "select image_src from image_srcs where material_id = $1", material_id)
+	imagesrows, err := initializers.ConnPool.Query(context.Background(), "select id, material_id, image_src from image_srcs where material_id = $1", material_id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to get images",
@@ -395,10 +458,10 @@ func GetMaterialById(c *gin.Context) {
 		return
 	}
 
-	var images []string
+	var images = []models.Image_src{}
 	for imagesrows.Next() {
-		var image string
-		err := imagesrows.Scan(&image)
+		var image models.Image_src
+		err := imagesrows.Scan(&image.Id, &image.Material_id, &image.Image_src)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to get imagess",
@@ -409,7 +472,7 @@ func GetMaterialById(c *gin.Context) {
 
 	}
 
-	row := initializers.ConnPool.QueryRow(context.Background(), "select count(*) from materials m join material_categories mc on m.id = mc.material_id join categories c on c.id = mc.category_id  where c.category_name like '%сериал%' and m.id = $1", material_id)
+	row := initializers.ConnPool.QueryRow(context.Background(), "select m_type from materials where id = $1", material_id)
 
 	if row == nil {
 
@@ -419,7 +482,7 @@ func GetMaterialById(c *gin.Context) {
 		return
 	}
 
-	var isSerial int
+	var isSerial string
 
 	err = row.Scan(&isSerial)
 	if err != nil {
@@ -429,42 +492,82 @@ func GetMaterialById(c *gin.Context) {
 		return
 	}
 
-	if isSerial == 1 { //если сериал
+	if isSerial == "Сериалы" { //если сериал
 
-		series := initializers.ConnPool.QueryRow(context.Background(), "select count(distinct sezon), count(series) from videos where material_id = $1", material_id)
-		if series == nil {
+		video, err := initializers.ConnPool.Query(context.Background(), "select id, material_id, sezon, series, video_src, viewed  from videos where material_id = $1 order by sezon, series", material_id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed get videos",
+			})
+		}
+		var videos = []models.Video{}
+		fmt.Print(videos)
+		if video != nil {
+			var videoss models.Video
+			for video.Next() {
+				err = video.Scan(&videoss.Id, &videoss.Material_id, &videoss.Sezon, &videoss.Series, &videoss.Video_src, &videoss.Viewed)
+				if err != nil {
+					videos = []models.Video{}
+				}
+				videos = append(videos, videoss)
+			}
+
+		}
+
+		series := initializers.ConnPool.QueryRow(context.Background(), "select count(*) from videos where material_id = $1 AND sezon = 1", material_id)
+
+		var serie int
+		err = series.Scan(&serie)
+		if err != nil {
+			serie = 0
+		}
+
+		sezons := initializers.ConnPool.QueryRow(context.Background(), "select count(distinct(sezon)) from videos where material_id = $1", material_id)
+
+		if sezons == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": "Failed to define sezons and series",
 			})
 			return
 		}
 
-		var SezonsAndSeries models.SezonsAndSeries
-		err = series.Scan(&SezonsAndSeries.SezonCount, &SezonsAndSeries.SeriesCount)
+		var sezon int
+		err = sezons.Scan(&sezon)
 		if err != nil {
-			fmt.Println(err)
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Failed to define serial or not",
-			})
-			return
+			sezon = 0
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"categories":  categories,
 			"movieinfo":   movieInfo,
 			"screenshots": images,
-			"sezons":      SezonsAndSeries.SezonCount,
-			"series":      SezonsAndSeries.SeriesCount,
+			"videos":      videos,
+			"sezons":      sezon,
+			"series":      serie,
 			"genres":      genres,
 			"ages":        ages,
 		})
 
-	} else if isSerial == 0 {
+	} else if isSerial == "Фильмы" {
+		video := initializers.ConnPool.QueryRow(context.Background(), "select id, material_id, sezon, series, video_src, viewed  from videos where material_id = $1 AND SEZON = 0 AND SERIES = 0", material_id)
+
+		var videos = []models.Video{}
+		fmt.Print(videos)
+		if video != nil {
+			var videoss models.Video
+			err = video.Scan(&videoss.Id, &videoss.Material_id, &videoss.Sezon, &videoss.Series, &videoss.Video_src, &videoss.Viewed)
+			if err != nil {
+				videos = []models.Video{}
+			}
+			videos = append(videos, videoss)
+		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"categories":  categories,
 			"movieinfo":   movieInfo,
 			"screenshots": images,
-			"sezons":      nil,
-			"series":      nil,
+			"sezons":      0,
+			"series":      0,
+			"videos":      videos,
 			"genres":      genres,
 			"ages":        ages,
 		})

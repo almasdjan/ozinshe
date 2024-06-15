@@ -20,6 +20,8 @@ type Material struct {
 	Image_src    []Image_src `gorm:"foreignKey:Material_id;references:ID"`
 	Duration     string
 	Viewed       uint `gorm:"default:0"`
+	Keywords     string
+	M_type       string
 }
 
 type Material_recommend struct {
@@ -30,6 +32,7 @@ type Material_recommend struct {
 }
 
 type Movie struct {
+	Id           uint `json:"id"`
 	Poster       string
 	Title        string
 	Publish_year int

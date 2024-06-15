@@ -70,7 +70,16 @@ definitions:
       phone_number:
         type: string
     type: object
-host: ozinshetestapi.mobydev.kz
+  models.Videos:
+    properties:
+      series:
+        type: integer
+      sezon:
+        type: integer
+      video_src:
+        type: string
+    type: object
+host: localhost:8080
 info:
   contact: {}
   description: API Server for Ozinshe app
@@ -746,19 +755,12 @@ paths:
       tags:
       - admin
     post:
-      consumes:
-      - application/json
       parameters:
       - description: title
         in: formData
         name: title
         required: true
         type: string
-      - description: poster
-        in: formData
-        name: posterr
-        required: true
-        type: file
       - description: description
         in: formData
         name: description
@@ -805,16 +807,19 @@ paths:
         name: duration
         required: true
         type: string
-      - collectionFormat: csv
-        description: images
+      - description: keywords
         in: formData
-        items:
-          type: file
-        name: image_srcs[]
+        name: keywords
         required: true
-        type: array
-      produces:
-      - application/json
+        type: string
+      - description: type
+        enum:
+        - Фильмы
+        - Сериалы
+        in: formData
+        name: type
+        required: true
+        type: string
       responses:
         "200":
           description: OK
@@ -927,6 +932,48 @@ paths:
       security:
       - BearerAuth: []
       summary: edit material
+      tags:
+      - admin
+  /admin/material/screens/{id}:
+    post:
+      parameters:
+      - description: material id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: poster
+        in: formData
+        name: posterr
+        required: true
+        type: file
+      - collectionFormat: csv
+        description: images
+        in: formData
+        items:
+          type: file
+        name: image_srcs[]
+        required: true
+        type: array
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: add poster and screenshots
       tags:
       - admin
   /admin/materialimage:
@@ -1068,34 +1115,23 @@ paths:
       summary: add to recommended list
       tags:
       - admin
-  /admin/videosrc:
+  /admin/videosrc/{id}:
     post:
       consumes:
       - application/json
       parameters:
       - description: material id
-        in: formData
-        name: material_id
+        in: path
+        name: id
         required: true
         type: string
-      - description: sezon
-        in: formData
-        name: sezon
-        type: string
-      - description: series
-        in: formData
-        name: series
-        type: string
-      - description: video_src
-        in: formData
-        name: video_src
-        required: true
-        type: string
-      - description: image
-        in: formData
-        name: image_src
-        required: true
-        type: file
+      - description: videos
+        in: body
+        name: videos
+        schema:
+          items:
+            $ref: '#/definitions/models.Videos'
+          type: array
       produces:
       - application/json
       responses:
@@ -1116,7 +1152,7 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: Create video
+      summary: Add video
       tags:
       - admin
   /admin/videosrc/{video_id}:

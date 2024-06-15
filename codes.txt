@@ -122,6 +122,7 @@ add viewed int default 0
 ALTER TABLE videos ALTER COLUMN sezon SET DEFAULT 0;
 ALTER TABLE videos ALTER COLUMN series SET DEFAULT 0;
 ALTER TABLE videos ADD CONSTRAINT unique_episodes UNIQUE (sezon,series, material_id);
+alter table materials add keywords varchar(255);
 
 
 

@@ -1043,12 +1043,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "admin"
                 ],
@@ -1058,13 +1052,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "title",
                         "name": "title",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "poster",
-                        "name": "posterr",
                         "in": "formData",
                         "required": true
                     },
@@ -1130,6 +1117,76 @@ const docTemplate = `{
                         "type": "string",
                         "description": "duration",
                         "name": "duration",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "keywords",
+                        "name": "keywords",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "Фильмы",
+                            "Сериалы"
+                        ],
+                        "type": "string",
+                        "description": "type",
+                        "name": "type",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/material/screens/{id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "add poster and screenshots",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "material id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "poster",
+                        "name": "posterr",
                         "in": "formData",
                         "required": true
                     },
@@ -1525,7 +1582,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/videosrc": {
+        "/admin/videosrc/{id}": {
             "post": {
                 "security": [
                     {
@@ -1541,40 +1598,25 @@ const docTemplate = `{
                 "tags": [
                     "admin"
                 ],
-                "summary": "Create video",
+                "summary": "Add video",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "material id",
-                        "name": "material_id",
-                        "in": "formData",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "sezon",
-                        "name": "sezon",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "series",
-                        "name": "series",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "string",
-                        "description": "video_src",
-                        "name": "video_src",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "image",
-                        "name": "image_src",
-                        "in": "formData",
-                        "required": true
+                        "description": "videos",
+                        "name": "videos",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Videos"
+                            }
+                        }
                     }
                 ],
                 "responses": {
@@ -2653,6 +2695,20 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "models.Videos": {
+            "type": "object",
+            "properties": {
+                "series": {
+                    "type": "integer"
+                },
+                "sezon": {
+                    "type": "integer"
+                },
+                "video_src": {
+                    "type": "string"
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -2667,7 +2723,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "ozinshetestapi.mobydev.kz",
+	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Ozinshe",

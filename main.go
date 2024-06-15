@@ -24,7 +24,7 @@ func init() {
 // @version 1.0
 // @description API Server for Ozinshe app
 
-// @host ozinshetestapi.mobydev.kz
+// @host localhost:8080
 
 //ozinshetestapi.mobydev.kz
 // @BasePath /
@@ -71,13 +71,14 @@ func main() {
 	admin.POST("/agematerial/:material_id/:age_id", controllers.AddAgeToMaterial)
 	admin.POST("/categorymaterial/:material_id/:category_id", controllers.AddCategoryToMaterial)
 
-	admin.POST("/videosrc", controllers.CreateVideo)
+	admin.POST("/videosrc/:id", controllers.CreateVideo)
 	admin.DELETE("/videosrc/:video_id", controllers.DeleteVideo)
 
 	admin.POST("/recommends/:material_id", controllers.AddRecommend)
 	admin.DELETE("/recommends/:material_id", controllers.DeleteFromRecommended)
 
 	admin.POST("/material", controllers.CreateMaterial)
+	admin.POST("/material/screens/:id", controllers.AddScreens)
 	admin.GET("material", controllers.GetAll)
 	admin.DELETE("/material/:material_id", controllers.DeleteMaterial)
 	admin.PATCH("/material/:material_id", controllers.UpdateMaterial)

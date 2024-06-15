@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"project1/initializers"
 	"project1/middleware"
@@ -11,20 +12,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Create video
+// @Summary Add video
 // @Security BearerAuth
 // @Tags admin
 // @Accept json
 // @Produce json
-// @Param material_id formData string true "material id"
-// @Param sezon formData string false "sezon"
-// @Param series formData string false "series"
-// @Param video_src formData string true "video_src"
-// @Param image_src formData file true "image"
+// @Param id path string true "material id"
+// @Param videos body []models.Videos false "videos"
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
-// @Router /admin/videosrc [post]
+// @Router /admin/videosrc/{id} [post]
 func CreateVideo(c *gin.Context) {
 	middleware.RequireAuth(c)
 
@@ -40,41 +38,30 @@ func CreateVideo(c *gin.Context) {
 		return
 	}
 
-	material_idd := c.PostForm("material_id")
-	sezonn := c.PostForm("sezon")
-	seriess := c.PostForm("series")
-	video_src := c.PostForm("video_src")
-	image_src, err := c.FormFile("image_src")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read image_src",
-		})
+	material_idd := c.Param("id")
+	var series []models.Videos
+	if err := c.ShouldBindJSON(&series); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	path := "files//videoposters//" + image_src.Filename
-	c.SaveUploadedFile(image_src, path)
 
-	if seriess == "" {
-		seriess = "1"
-	}
-	if sezonn == "" {
-		sezonn = "1"
-	}
 	material_id, err1 := strconv.Atoi(material_idd)
-	sezon, err2 := strconv.Atoi(sezonn)
-	series, err3 := strconv.Atoi(seriess)
-	if err1 != nil || err2 != nil || err3 != nil {
+
+	if err1 != nil {
+		fmt.Print(err1.Error())
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read sezon or series",
+			"error": "Failed to read material id",
 		})
 		return
 	}
 
-	if video_src == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "please, enter video source",
-		})
-		return
+	for _, v := range series {
+		if v.Video_src == "" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "please, enter video source",
+			})
+			return
+		}
 	}
 
 	/*
@@ -94,26 +81,19 @@ func CreateVideo(c *gin.Context) {
 		return
 	}
 
-	var video models.Video
-	exist := initializers.DB.Where("material_id=?", material_id).Where("sezon = ?", sezon).Where("series = ?", series).First(&video)
+	for _, v := range series {
+		video := models.Video{Material_id: uint(material_id), Sezon: uint(v.Sezon), Series: uint(v.Series), Video_src: v.Video_src}
 
-	if exist.RowsAffected > 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "This series is already exists",
-		})
-		return
-	}
+		result := initializers.DB.Create(&video)
 
-	video = models.Video{Material_id: uint(material_id), Sezon: uint(sezon), Series: uint(series), Image_src: image_src.Filename, Video_src: video_src}
+		if result.Error != nil {
+			fmt.Print(result.Error.Error())
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to create video",
+			})
+			return
 
-	result := initializers.DB.Create(&video)
-
-	if result.Error != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to create video",
-		})
-		return
-
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
