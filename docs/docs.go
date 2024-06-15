@@ -986,11 +986,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "enum": [
+                            "Популярные",
                             "По дате регистрации",
                             "По дате обновления"
                         ],
                         "type": "string",
-                        "default": "Популярные",
                         "description": "Sort order",
                         "name": "sort",
                         "in": "query"
@@ -1004,11 +1004,11 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
+                            "Фильмы и сериалы",
                             "Фильмы",
                             "Сериалы"
                         ],
                         "type": "string",
-                        "default": "Фильмы и сериалы",
                         "description": "Type",
                         "name": "type",
                         "in": "query"

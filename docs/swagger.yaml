@@ -711,9 +711,9 @@ paths:
       consumes:
       - application/json
       parameters:
-      - default: Популярные
-        description: Sort order
+      - description: Sort order
         enum:
+        - Популярные
         - По дате регистрации
         - По дате обновления
         in: query
@@ -724,9 +724,9 @@ paths:
         in: query
         name: category
         type: string
-      - default: Фильмы и сериалы
-        description: Type
+      - description: Type
         enum:
+        - Фильмы и сериалы
         - Фильмы
         - Сериалы
         in: query

@@ -19,7 +19,6 @@ type Material struct {
 	Genres       []*Genre    `gorm:"many2many:material_genres;"`
 	Image_src    []Image_src `gorm:"foreignKey:Material_id;references:ID"`
 	Duration     string
-	Viewed       uint `gorm:"default:0"`
 	Keywords     string
 	M_type       string
 }
@@ -40,7 +39,6 @@ type Movie struct {
 	Description  string
 	Director     string
 	Producer     string
-	Viewed       int
 }
 
 type Material_history struct {
@@ -56,7 +54,6 @@ type Material_get struct {
 	UpdatedAt   time.Time
 	Poster      string
 	Category    string
-	Viewed      int
 }
 
 type Material_search struct {

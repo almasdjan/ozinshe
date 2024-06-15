@@ -1229,9 +1229,9 @@ func GetAllMovies(c *gin.Context) {
 // @Tags admin
 // @Accept json
 // @Produce json
-// @Param sort query string false "Sort order" default(Популярные) Enums(По дате регистрации, По дате обновления)
+// @Param sort query string false "Sort order" Enums(Популярные, По дате регистрации, По дате обновления)
 // @Param category query string false "Category" default(Все категории)
-// @Param type query string false "Type" default(Фильмы и сериалы) Enums(Фильмы, Сериалы)
+// @Param type query string false "Type" Enums(Фильмы и сериалы, Фильмы, Сериалы)
 // @Param year query string false "Year" default(Выберите год)
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
