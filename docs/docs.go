@@ -985,6 +985,10 @@ const docTemplate = `{
                 "summary": "Get All movies",
                 "parameters": [
                     {
+                        "enum": [
+                            "По дате регистрации",
+                            "По дате обновления"
+                        ],
                         "type": "string",
                         "default": "Популярные",
                         "description": "Sort order",
@@ -999,6 +1003,10 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "enum": [
+                            "Фильмы",
+                            "Сериалы"
+                        ],
                         "type": "string",
                         "default": "Фильмы и сериалы",
                         "description": "Type",

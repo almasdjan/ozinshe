@@ -713,6 +713,9 @@ paths:
       parameters:
       - default: Популярные
         description: Sort order
+        enum:
+        - По дате регистрации
+        - По дате обновления
         in: query
         name: sort
         type: string
@@ -723,6 +726,9 @@ paths:
         type: string
       - default: Фильмы и сериалы
         description: Type
+        enum:
+        - Фильмы
+        - Сериалы
         in: query
         name: type
         type: string
