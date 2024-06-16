@@ -334,6 +334,105 @@ func AddScreens(c *gin.Context) {
 
 }
 
+// @Summary edit poster and screenshots
+// @Security BearerAuth
+// @Tags admin
+// @Param id path string true "material id"
+// @Param posterr formData file false "poster"
+// @Param image_srcs[] formData []file false "images"
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/material/screens/{id} [patch]
+func EditScreens(c *gin.Context) {
+	middleware.RequireAuth(c)
+	if c.IsAborted() {
+		return
+	}
+	userid, _ := c.Get("user")
+	var user models.User
+
+	initializers.DB.First(&user, userid)
+
+	if !user.Isadmin {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "This account is not admin",
+		})
+		return
+	}
+
+	material_id := c.Param("id")
+
+	id, err := strconv.Atoi(material_id)
+	if err != nil {
+		fmt.Print(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read id",
+		})
+		return
+	}
+
+	posterr, err := c.FormFile("posterr")
+	if err != nil {
+		posterr = nil
+	}
+
+	//save poster image
+
+	if posterr != nil {
+		path := "files//posters//" + posterr.Filename
+		c.SaveUploadedFile(posterr, path)
+
+		_, err = initializers.ConnPool.Exec(context.Background(), "update materials set poster = $1 WHERE id = $2", path, material_id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to add poster",
+			})
+			return
+		}
+	}
+
+	image_srcs, _ := c.MultipartForm()
+	files := image_srcs.File["image_srcs[]"]
+	fmt.Println(files)
+	if files != nil {
+		_, err = initializers.ConnPool.Exec(context.Background(), "delete from image_srcs  WHERE material_id = $1", material_id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update screens",
+			})
+			return
+		}
+		for _, file := range files {
+			fmt.Println(file.Filename)
+			//upload images into directory
+			path := "files//images//" + file.Filename
+			c.SaveUploadedFile(file, path)
+
+			//adding filename in database
+			image_src := models.Image_src{
+				Material_id: uint(id),
+				Image_src:   file.Filename}
+
+			result1 := initializers.DB.Create(&image_src)
+
+			if result1.Error != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "Failed to create image",
+				})
+				return
+
+			}
+
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"Action": "The images were succfully added",
+	})
+
+}
+
 // @Summary Material by id
 // @Security BearerAuth
 // @Tags admin
@@ -771,16 +870,16 @@ func DeleteMaterial(c *gin.Context) {
 // @Summary edit material
 // @Security BearerAuth
 // @Tags admin
-// @Accept json
-// @Produce json
 // @Param material_id path string true "material_id"
 // @Param title formData string false "title"
-// @Param posterr formData file false "poster"
 // @Param description formData string false "description"
 // @Param publish_year formData string false "publish year"
 // @Param director formData string false "director"
 // @Param producer formData string false "producer"
-// @Param duration formData string false "producer"
+// @Param duration formData string false "duration"
+// @Param categories formData []string false "categories"
+// @Param age_categories formData []string false "ages"
+// @Param genres formData []string false "genres"
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
@@ -811,6 +910,14 @@ func UpdateMaterial(c *gin.Context) {
 		}
 	*/
 	id := c.Param("material_id")
+
+	material_id, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to get id",
+		})
+		return
+	}
 	var path string
 	posterr, err := c.FormFile("posterr")
 
@@ -831,6 +938,11 @@ func UpdateMaterial(c *gin.Context) {
 	fmt.Println(producer)
 	duration := c.PostForm("duration")
 	fmt.Println(duration)
+
+	categories := c.PostFormArray("categories")
+	age := c.PostFormArray("age_categories")
+	genre := c.PostFormArray("genres")
+
 	if title != "" {
 		_, err := initializers.ConnPool.Exec(context.Background(), "update materials set title = $1 WHERE id = $2", title, id)
 		if err != nil {
@@ -899,6 +1011,163 @@ func UpdateMaterial(c *gin.Context) {
 				"error": "Failed to update the material",
 			})
 			return
+		}
+	}
+
+	if categories != nil {
+		var categoriesList []string
+		for _, v := range categories {
+			categoriesList = strings.Split(v, ",")
+		}
+		_, err = initializers.ConnPool.Exec(context.Background(), "delete from material_categories WHERE material_id = $1", id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update the material",
+			})
+			return
+		}
+
+		for _, v := range categoriesList {
+			category_id, err := strconv.Atoi(v)
+			if err != nil {
+				fmt.Println(err)
+				fmt.Println(v)
+				fmt.Println(category_id)
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "category_id is not correct",
+				})
+				return
+			}
+			material_category := models.Material_category{
+				Material_id: uint(material_id),
+				Category_id: uint(category_id)}
+
+			var category models.Category
+			exist := initializers.DB.Where("id=?", v).First(&category)
+			if exist.RowsAffected == 0 {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "no such category",
+				})
+				return
+
+			}
+
+			result1 := initializers.DB.Create(&material_category)
+
+			if result1.Error != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "Failed to create material_category",
+				})
+				return
+
+			}
+		}
+
+	}
+
+	if age != nil {
+		var agesList []string
+		for _, v := range age {
+			agesList = strings.Split(v, ",")
+		}
+
+		_, err = initializers.ConnPool.Exec(context.Background(), "delete from material_ages WHERE material_id = $1", id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update the material",
+			})
+			return
+		}
+
+		for _, v := range agesList {
+			age_id, err := strconv.Atoi(v)
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "age id is not correct",
+				})
+				return
+			}
+			material_age := models.Material_age{
+				Material_id: uint(material_id),
+				Age_id:      uint(age_id)}
+
+			var age models.Age
+			exist := initializers.DB.Where("id=?", v).First(&age)
+			if exist.RowsAffected == 0 {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "no such age category",
+				})
+				return
+
+			}
+
+			result1 := initializers.DB.Create(&material_age)
+
+			if result1.Error != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "Failed to create material_ages",
+				})
+				return
+
+			}
+
+		}
+
+	}
+
+	if genre != nil {
+		//adding material_id, genre_id in material_genres
+		var genresList []string
+		for _, v := range genre {
+			genresList = strings.Split(v, ",")
+		}
+
+		_, err = initializers.ConnPool.Exec(context.Background(), "delete from material_genres WHERE material_id = $1", id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to update the material",
+			})
+			return
+		}
+
+		for _, v := range genresList {
+			genre_id, err := strconv.Atoi(v)
+
+			if err != nil {
+				fmt.Println(err)
+				fmt.Println(v)
+				fmt.Println(genre_id)
+			}
+			if err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "genre_id is not correct",
+				})
+				return
+			}
+			material_genre := models.Material_genre{
+				Material_id: uint(material_id),
+				Genre_id:    uint(genre_id)}
+
+			var genre models.Genre
+			exist := initializers.DB.Where("id=?", v).First(&genre)
+			if exist.RowsAffected == 0 {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "no such genre",
+				})
+				return
+
+			}
+
+			result1 := initializers.DB.Create(&material_genre)
+
+			if result1.Error != nil {
+				c.JSON(http.StatusBadRequest, gin.H{
+					"error": "Failed to create material_genres",
+				})
+				return
+
+			}
+
 		}
 	}
 

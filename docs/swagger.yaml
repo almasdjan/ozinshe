@@ -913,8 +913,6 @@ paths:
       tags:
       - admin
     patch:
-      consumes:
-      - application/json
       parameters:
       - description: material_id
         in: path
@@ -925,10 +923,6 @@ paths:
         in: formData
         name: title
         type: string
-      - description: poster
-        in: formData
-        name: posterr
-        type: file
       - description: description
         in: formData
         name: description
@@ -945,12 +939,31 @@ paths:
         in: formData
         name: producer
         type: string
-      - description: producer
+      - description: duration
         in: formData
         name: duration
         type: string
-      produces:
-      - application/json
+      - collectionFormat: csv
+        description: categories
+        in: formData
+        items:
+          type: string
+        name: categories
+        type: array
+      - collectionFormat: csv
+        description: ages
+        in: formData
+        items:
+          type: string
+        name: age_categories
+        type: array
+      - collectionFormat: csv
+        description: genres
+        in: formData
+        items:
+          type: string
+        name: genres
+        type: array
       responses:
         "200":
           description: OK
@@ -973,6 +986,45 @@ paths:
       tags:
       - admin
   /admin/material/screens/{id}:
+    patch:
+      parameters:
+      - description: material id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: poster
+        in: formData
+        name: posterr
+        type: file
+      - collectionFormat: csv
+        description: images
+        in: formData
+        items:
+          type: file
+        name: image_srcs[]
+        type: array
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: edit poster and screenshots
+      tags:
+      - admin
     post:
       parameters:
       - description: material id
@@ -1088,6 +1140,46 @@ paths:
       summary: add image to material
       tags:
       - admin
+  /admin/recommends:
+    patch:
+      parameters:
+      - description: material id
+        in: formData
+        name: material_id
+        required: true
+        type: string
+      - description: queue
+        enum:
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+        in: formData
+        name: queue
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: add to recommended list
+      tags:
+      - admin
   /admin/recommends/{material_id}:
     delete:
       consumes:
@@ -1121,15 +1213,23 @@ paths:
       summary: form recommended list
       tags:
       - admin
-    post:
+  /admin/videosrc/{id}:
+    patch:
       consumes:
       - application/json
       parameters:
       - description: material id
         in: path
-        name: material_id
+        name: id
         required: true
         type: string
+      - description: videos
+        in: body
+        name: videos
+        schema:
+          items:
+            $ref: '#/definitions/models.Videos'
+          type: array
       produces:
       - application/json
       responses:
@@ -1150,10 +1250,9 @@ paths:
             type: object
       security:
       - BearerAuth: []
-      summary: add to recommended list
+      summary: edit videos
       tags:
       - admin
-  /admin/videosrc/{id}:
     post:
       consumes:
       - application/json

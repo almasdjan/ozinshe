@@ -1233,6 +1233,65 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "edit poster and screenshots",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "material id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "poster",
+                        "name": "posterr",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "file"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "images",
+                        "name": "image_srcs[]",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             }
         },
         "/admin/material/{material_id}": {
@@ -1340,12 +1399,6 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "admin"
                 ],
@@ -1362,12 +1415,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "title",
                         "name": "title",
-                        "in": "formData"
-                    },
-                    {
-                        "type": "file",
-                        "description": "poster",
-                        "name": "posterr",
                         "in": "formData"
                     },
                     {
@@ -1396,8 +1443,38 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "producer",
+                        "description": "duration",
                         "name": "duration",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "categories",
+                        "name": "categories",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "ages",
+                        "name": "age_categories",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "genres",
+                        "name": "genres",
                         "in": "formData"
                     }
                 ],
@@ -1539,18 +1616,12 @@ const docTemplate = `{
                 }
             }
         },
-        "/admin/recommends/{material_id}": {
-            "post": {
+        "/admin/recommends": {
+            "patch": {
                 "security": [
                     {
                         "BearerAuth": []
                     }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
                 ],
                 "tags": [
                     "admin"
@@ -1561,7 +1632,21 @@ const docTemplate = `{
                         "type": "string",
                         "description": "material id",
                         "name": "material_id",
-                        "in": "path",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "1",
+                            "2",
+                            "3",
+                            "4",
+                            "5"
+                        ],
+                        "type": "string",
+                        "description": "queue",
+                        "name": "queue",
+                        "in": "formData",
                         "required": true
                     }
                 ],
@@ -1588,7 +1673,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/admin/recommends/{material_id}": {
             "delete": {
                 "security": [
                     {
@@ -1656,6 +1743,66 @@ const docTemplate = `{
                     "admin"
                 ],
                 "summary": "Add video",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "material id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "videos",
+                        "name": "videos",
+                        "in": "body",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Videos"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "admin"
+                ],
+                "summary": "edit videos",
                 "parameters": [
                     {
                         "type": "string",

@@ -72,13 +72,15 @@ func main() {
 	admin.POST("/categorymaterial/:material_id/:category_id", controllers.AddCategoryToMaterial)
 
 	admin.POST("/videosrc/:id", controllers.CreateVideo)
+	admin.PATCH("/videosrc/:id", controllers.EditVideos)
 	admin.DELETE("/videosrc/:video_id", controllers.DeleteVideo)
 
-	admin.POST("/recommends/:material_id", controllers.AddRecommend)
+	admin.PATCH("/recommends", controllers.AddRecommend)
 	admin.DELETE("/recommends/:material_id", controllers.DeleteFromRecommended)
 
 	admin.POST("/material", controllers.CreateMaterial)
 	admin.POST("/material/screens/:id", controllers.AddScreens)
+	admin.PATCH("/material/screens/:id", controllers.EditScreens)
 	admin.GET("/material/:material_id", controllers.GetMaterialById)
 	admin.GET("material", controllers.GetAll)
 	admin.DELETE("/material/:material_id", controllers.DeleteMaterial)

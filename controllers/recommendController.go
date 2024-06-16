@@ -7,6 +7,7 @@ import (
 	"project1/initializers"
 	"project1/middleware"
 	"project1/models"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,13 +15,12 @@ import (
 // @Summary add to recommended list
 // @Security BearerAuth
 // @Tags admin
-// @Accept json
-// @Produce json
-// @Param material_id path string true "material id"
+// @Param material_id formData string true "material id"
+// @Param queue formData string true "queue" Enums(1, 2, 3, 4, 5)
 // @Success 200 {object} map[string]any
 // @Failure 400 {object} map[string]any
 // @Failure 500 {object} map[string]any
-// @Router /admin/recommends/{material_id} [post]
+// @Router /admin/recommends [patch]
 func AddRecommend(c *gin.Context) {
 	middleware.RequireAuth(c)
 	if c.IsAborted() {
@@ -47,10 +47,21 @@ func AddRecommend(c *gin.Context) {
 			return
 		}*/
 
-	material_id := c.Param("material_id")
-	_, err := initializers.ConnPool.Exec(context.Background(), "insert into recommends (material_id) values ($1)", material_id)
+	material_id := c.PostForm("material_id")
+	id, err := strconv.Atoi(material_id)
+	if err != nil {
+		fmt.Print(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to read material id",
+		})
+		return
+	}
+	queue := c.PostForm("queue")
+
+	_, err = initializers.ConnPool.Exec(context.Background(), "update recommends set material_id = $1 where queue = $2", id, queue)
 
 	if err != nil {
+		fmt.Print(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Failed to add material into recommended",
 		})
