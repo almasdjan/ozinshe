@@ -76,6 +76,7 @@ func main() {
 	admin.DELETE("/videosrc/:video_id", controllers.DeleteVideo)
 
 	admin.PATCH("/recommends", controllers.AddRecommend)
+	admin.GET("/recommends", controllers.GetRecommendedAdmin)
 	admin.DELETE("/recommends/:material_id", controllers.DeleteFromRecommended)
 
 	admin.POST("/material", controllers.CreateMaterial)

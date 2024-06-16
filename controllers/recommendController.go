@@ -75,6 +75,64 @@ func AddRecommend(c *gin.Context) {
 
 }
 
+// @Summary get recommended list
+// @Security BearerAuth
+// @Tags admin
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]any
+// @Failure 400 {object} map[string]any
+// @Failure 500 {object} map[string]any
+// @Router /admin/recommends [get]
+func GetRecommendedAdmin(c *gin.Context) {
+	middleware.RequireAuth(c)
+	if c.IsAborted() {
+		return
+	}
+	userid, _ := c.Get("user")
+
+	var user models.User
+	initializers.DB.First(&user, userid)
+	/*
+		db, error := initializers.ConnectDb()
+		if error != nil {
+			fmt.Println(error)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to connect database",
+			})
+			return
+		}*/
+	rows, err := initializers.ConnPool.Query(context.Background(), "select r.material_id, m.poster, m.title, m.description from materials m join recommends r on m.id = r.material_id order by r.queue desc")
+
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Failed to get materials from recommended",
+		})
+		return
+	}
+	var materials = []models.Material_recommend{}
+
+	for rows.Next() {
+		var materialRecommed models.Material_recommend
+		err := rows.Scan(&materialRecommed.Material_id, &materialRecommed.Poster, &materialRecommed.Title, &materialRecommed.Description)
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to get materials from recommended",
+			})
+			return
+		}
+
+		materials = append(materials, materialRecommed)
+
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"recommended": materials,
+	})
+
+}
+
 // @Summary recommended list
 // @Security BearerAuth
 // @Tags main
