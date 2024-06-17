@@ -36,7 +36,7 @@ func init() {
 func main() {
 	r := gin.Default()
 
-	r.Use(middleware.Cors)
+	r.Use(middleware.CORSMiddleware())
 
 	r.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
