@@ -61,3 +61,17 @@ func RequireAuth(c *gin.Context) {
 	}
 
 }
+
+func Cors(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+	// Для обработки preflight-запросов
+	if c.Request.Method == "OPTIONS" {
+		c.AbortWithStatus(http.StatusNoContent)
+		return
+	}
+
+	c.Next()
+}

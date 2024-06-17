@@ -36,6 +36,8 @@ func init() {
 func main() {
 	r := gin.Default()
 
+	r.Use(middleware.Cors)
+
 	r.GET("swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	auth := r.Group("/auth")
