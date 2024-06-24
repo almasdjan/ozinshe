@@ -78,7 +78,7 @@ func CreateGenre(c *gin.Context) {
 
 	}
 
-	c.JSON(http.StatusBadRequest, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"Action": "The genre was succfully created",
 	})
 
